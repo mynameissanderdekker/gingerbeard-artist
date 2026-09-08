@@ -18,6 +18,16 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // Tailwinds tekstmaten aan dezelfde schaal als globals.css: `text-sm`
+      // stond op 14px en `text-xs` op 12px, los van de rest van de site.
+      fontSize: {
+        xs:    ['var(--type-small)', { lineHeight: '1.5' }],
+        sm:    ['var(--type-small)', { lineHeight: '1.5' }],
+        base:  ['var(--type-body)',  { lineHeight: '1.6' }],
+        lg:    ['var(--type-lead)',  { lineHeight: '1.5' }],
+        xl:    ['var(--type-h4)',    { lineHeight: '1.3' }],
+        '2xl': ['var(--type-h3)',    { lineHeight: '1.2' }],
+      },
       colors: {
         background: "var(--color-bg)",
         foreground: "var(--color-text)",

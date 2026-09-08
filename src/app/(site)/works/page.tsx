@@ -279,12 +279,12 @@ function WorkCard({ w }: { w: ArtworkCard }) {
           <div className="works-grid-img" style={{ background: 'var(--color-surface-2)' }} />
         )}
         {isVariant && !soldOut && badgeStyle && (
-          <span className="works-badge" style={{ background: badgeStyle.bg, color: badgeStyle.color, fontSize: '0.65rem', letterSpacing: '0.08em' }}>
+          <span className="works-badge" style={{ background: badgeStyle.bg, color: badgeStyle.color, fontSize: 'var(--type-label)', letterSpacing: '0.08em' }}>
             {badgeStyle.icon && `${badgeStyle.icon} `}{badge?.toUpperCase()}
           </span>
         )}
         {isVariant && !soldOut && w.variantOnSale && w.variantSalePrice && (
-          <span className="works-badge works-badge-sale" style={{ top: badgeStyle ? '1.6rem' : undefined, background: 'var(--color-danger)', color: 'var(--tone-paper)', fontSize: '0.65rem', letterSpacing: '0.08em' }}>
+          <span className="works-badge works-badge-sale" style={{ top: badgeStyle ? '1.6rem' : undefined, background: 'var(--color-danger)', color: 'var(--tone-paper)', fontSize: 'var(--type-label)', letterSpacing: '0.08em' }}>
             SALE
           </span>
         )}
@@ -315,7 +315,7 @@ function WorkCard({ w }: { w: ArtworkCard }) {
       {isVariant && w.variantOnSale && w.variantSalePrice ? (
         <p className="works-price">
           <span style={{ color: 'var(--color-danger)' }}>{formatPrice(w.variantSalePrice)}</span>
-          {w.priceIncVat && <span style={{ color: 'var(--color-subtle)', textDecoration: 'line-through', marginLeft: '0.4em', fontSize: '0.9em' }}>{formatPrice(w.priceIncVat)}</span>}
+          {w.priceIncVat && <span style={{ color: 'var(--color-subtle)', textDecoration: 'line-through', marginLeft: '0.4em', fontSize: 'var(--type-body)' }}>{formatPrice(w.priceIncVat)}</span>}
         </p>
       ) : price ? (
         <p className="works-price">{price}</p>

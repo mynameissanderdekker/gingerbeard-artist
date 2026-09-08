@@ -7,6 +7,14 @@ eerste installatie ervan. De repo heet op schijf mogelijk nog
 `mynameissanderdekker` — `package.json` heet al `gingerbeard-artist`, en
 `sync-shared.mjs` vindt de andere core op indeling, niet op naam.
 
+## Lokaal draaien
+
+`npm run dev:mnisd` — poort 3001, zodat hij naast Torch (3000) en de
+testgalerie (3002) in `gingerbeard-gallery` kan draaien. Zie de CLAUDE.md daar
+voor het rijtje en voor het uitvoerbit van `ship.sh`.
+
+---
+
 ## Core en uiterlijk staan los: `src/themes/`, `globals.css`, Appearance
 
 Zelfde opzet als in `gingerbeard-gallery` (zie de CLAUDE.md daar voor het
@@ -29,6 +37,16 @@ model en `PLATFORM.md` voor het waarom). Wat hier anders lag:
   thema-component.
 - **`AddToCalendar.tsx` houdt zeven hexkleuren**: die van Google en Outlook
   in de iconen. Dat zijn hún merken; `audit-theme` staat ze bij naam toe.
+
+**Eén letterschaal: `--type-*` in `globals.css`**, dezelfde negen stappen als
+de gallery-core (label 11 · small/meta 13 · body 16 · lead 17 · h4 21 · h3 27 ·
+h2 34 · h1 37). Body stond op 15px en daaroverheen lagen ~80 losse pixelmaten
+in `globals.css` en rem/em-maten in de pagina's — dat was het rommelige beeld.
+De oude WP-namen (`--text-sm`, `--text-base`, …) zijn aliassen op de schaal,
+en Tailwinds `text-xs`/`text-sm`/… hangen er in `tailwind.config.ts` ook aan.
+Bewust buiten de schaal: de Mindmap, het spinwheel, sluitkruisjes en de
+hoofdnavigatie (`--type-nav`, 18px). `audit-theme` bewaakt het: ≤ 15 losse
+maten in de css, 0 in componenten; grens gaat alleen omlaag.
 
 **Wat hier — anders dan bij de gallery — nog wél in de core zit: de
 identiteit.** "Sander Dekker" en "mynameissanderdekker" staan **68×** hard in
@@ -318,16 +336,51 @@ lezen die nu uit de omgeving.
   eruit. Nu `minmax(140px, 200px) minmax(0, 1fr)` — die `minmax(0, …)` is de
   kern: een grid-kolom krimpt standaard niet onder de inhoud, waardoor lange
   tekst de kolom oprekt in plaats van af te breken.
-- **De terugknop wees altijd naar `/works`.** Kwam je uit de CV, uit een project
-  of uit de aankondiging op de homepage, dan zette hij je ergens anders neer.
-  `src/components/BackLink.tsx` gaat terug in de geschiedenis — maar alleen als
-  je van deze site komt (`document.referrer` op dezelfde origin én
-  `history.length > 1`). Zonder die controle stuurt een gedeelde link de
-  bezoeker terug naar Google. Anders de opgegeven pagina, standaard `/works`.
+- **De terugknop wees altijd naar `/works`.** `src/components/BackLink.tsx`
+  (gedeeld met de gallery-core) gaat terug in de geschiedenis als er een
+  vorige pagina van deze site is. De eerste versie keek naar
+  `document.referrer`, en die verandert bij navigatie binnen Next níet mee —
+  dus viel hij bijna altijd terug op de vaste link. Nu telt `NavDepthTracker`
+  in de root layout de pagina's zelf. Beurs en expositie vallen terug op de
+  homepage: deze site heeft geen lijstpagina's voor die twee.
 
 **Zet geen `//`-commentaar tussen JSX-attributen.** Ik deed dat bij het
 `style`-attribuut van de banner; dat is geen commentaar maar onzin in de
 opening tag. Commentaar hoort vóór het element, in `{/* … */}`.
+
+---
+
+## Expositie- en beurspagina: dezelfde indeling als de gallery-core
+
+Banner → één metaregel ("17 – 20 September 2026 · Amsterdam, NL · Gallery
+Torch", `src/lib/datumBereik.ts`) → titel → `EventIntro` (ondertitel, blok
+Opening / practical information met agendaknop, kopje "About the …") →
+beschrijving → Artworks → zaal-/standfoto's → Press. De kolom met labels
+(Start / End / Location) is weg.
+
+`src/sanity/schemas/opening.ts` levert `subtitleField` en `openingField()` aan
+beide types — zelfde velden en regels als bij de gallery (tijden als
+keuzelijst, meerdaags = hele dagen zonder tijden, `calendarButton` ontbreekt =
+aan). `src/components/EventIntro.tsx` is een eigen versie in de stijl van deze
+site en staat **niet** in `sync-shared.mjs`; de `Opening`-interface is wel
+gelijk.
+
+**Tabbladen en veldvolgorde zijn bij beide types gelijk** en volgen de pagina:
+Details (titel, slug, datums, waar, Has own page, banner, ondertitel, opening,
+beschrijving, press) → Homepage (aankondiging) → Artworks → Photos → Share →
+CV. Het groepsnaam-id `installation` heet in de Studio "Photos", omdat het bij
+een beurs standfoto's zijn. Oude velden staan onderaan Details, verborgen
+zodra ze leeg zijn.
+
+De oude beursvelden `openingDate`/`openingTime` staan alleen-lezen en
+verborgen zodra ze leeg zijn; de pagina valt erop terug zolang het nieuwe blok
+leeg is (NAP+ 2026 draait daar nog op).
+
+Twee dingen die hierbij bleken: de expositiepagina toonde de **beschrijving
+nooit** (`typeof === 'string'`, het veld is Portable Text), en las de
+**venue-keuze** (`venueSpace` / `venue`) niet — alleen de oude tekstvelden
+`gallery` en `location`. De GROQ lost `own:<key>` en `contact:<id>` nu op naar
+naam en plaats.
 
 ---
 
@@ -461,3 +514,13 @@ Het script doet bewust **geen** `git add -A`: nieuwe bestanden worden getoond en
 apart bevestigd. Staat je tak niet op `main`, dan stopt hij en zegt hoe je
 samenvoegt. `--env` weigert een sleutelpaar dat niet van hetzelfde widget komt
 of dat Cloudflare zelf afkeurt.
+
+---
+
+## Back-up van de inhoud: `bash scripts/backup.sh <klant>`
+
+De code staat op GitHub, dus dubbel. De inhoud — werken, contacten, orders,
+foto's — staat alleen bij Sanity. `scripts/backup.sh mynameissanderdekker` exporteert de
+dataset mét foto's naar `~/websites/clients/mynameissanderdekker/backup/` en bewaart de
+laatste zes. Draai het na elke sessie waarin er veel inhoud bij is gekomen, en
+in elk geval maandelijks. Werkt alleen op Sanders machine (Sanity-login).

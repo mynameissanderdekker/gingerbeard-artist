@@ -84,7 +84,6 @@ export default function ArtworkDetail({ artwork }: { artwork: ArtworkData }) {
   ].filter(Boolean).join(' ')
 
   const isSoldOut       = artwork.status === 'sold_out'
-  const isEnquire       = artwork.status === 'enquire'
   const sellInWebshop   = artwork.availableInShop === true
   const descText        = blockText(artwork.description)
 
@@ -225,7 +224,7 @@ export default function ArtworkDetail({ artwork }: { artwork: ArtworkData }) {
                     }`}
                   >
                     <span className="block">{opt.label} <span className="opacity-50 font-normal text-xs">excl. frame</span></span>
-                    {!isEnquire && (
+                    {sellInWebshop && (
                       <span className="block text-xs opacity-70 mt-0.5">
                         {formatPrice(opt.priceExclVAT, artwork.vatRate)}
                       </span>
@@ -235,13 +234,15 @@ export default function ArtworkDetail({ artwork }: { artwork: ArtworkData }) {
               </div>
             )}
 
-            {!isSoldOut && !isEnquire && !hasOptions && effectivePriceExclVAT && (
+
+            {/* Prijs alleen als het werk in de webshop staat — zelfde regel als
+                Torch. Buiten de webshop is de prijs iets voor de prijslijst of
+                een gesprek, niet voor de pagina. */}
+            {!isSoldOut && sellInWebshop && !hasOptions && effectivePriceExclVAT && (
               <p className="text-xl font-medium">
                 {formatPrice(effectivePriceExclVAT, artwork.vatRate)}
               </p>
             )}
-
-            {/* Price on request — in webshop but no price set */}
             {!isSoldOut && sellInWebshop && !effectivePriceExclVAT && !hasOptions && (
               <p className="text-sm text-gray-500 uppercase tracking-widest">Price on request</p>
             )}

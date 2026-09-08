@@ -127,8 +127,7 @@ async function getZines() {
   return client.fetch(
     `*[_type == "publication"] | order(order asc) {
       number, title, meta, description, "featured": shopFeatured, projectSlug,
-      coverImage{ asset, hotspot, crop },
-      coverImageUrl
+      "mainImage": images[0]{ asset, hotspot, crop }
     }`
   )
 }
@@ -217,7 +216,7 @@ function ExhibitionsList({ exhibitions }: { exhibitions: LinkedExhibition[] }) {
                 : label
               }
               {e.location && `, ${e.location}`}
-              {detail && <span style={{ color: 'var(--tone-500)', fontSize: '0.85em' }}> ({detail})</span>}
+              {detail && <span style={{ color: 'var(--tone-500)', fontSize: 'var(--type-small)' }}> ({detail})</span>}
             </li>
           )
         })}

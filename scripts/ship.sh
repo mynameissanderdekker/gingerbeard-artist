@@ -99,7 +99,11 @@ if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ] && [ -n "$(git status --porcelain)" ]; the
     if "$@" >/tmp/ship-check.log 2>&1; then
       echo "   ✓ $naam"
     else
-      echo "   ✗ $naam"; grep -E "✗|error TS|Error" /tmp/ship-check.log | head -8 | sed 's/^/       /'
+      echo "   ✗ $naam"
+      # Nooit zwijgen. `grep` zonder treffer geeft exit 1, en met set -e stopte
+      # dáár het hele script — zonder "Er is iets rood", zonder de reden. Dus:
+      # de fouten tonen als ze er zijn, anders de laatste regels van het log.
+      { grep -E "✗|error TS|Error|niet geïnstalleerd|not found" /tmp/ship-check.log || tail -n 6 /tmp/ship-check.log; } | head -8 | sed 's/^/       /' || true
       ROOD=1
     fi
   }
@@ -127,7 +131,6 @@ if [ "$DRY" = 0 ] && [ "$FORCE" = 0 ] && [ -n "$(git status --porcelain)" ]; the
          ROOD=1 ;;
     esac
   fi
-
 
   # De snelle poort: alles wat alleen leest.
   SNEL="audit-tenant audit-theme audit-studio-lists audit-data testrun-print testrun-turnstile"
@@ -174,7 +177,15 @@ else
   [ -n "$NIEUW" ] && echo "$NIEUW" | sed 's/^/   + /'
 
   if [ -n "$NIEUW" ] && [ "$DRY" = 0 ]; then
-    read -r -p "Nieuwe bestanden meenemen? [j/N] " ja
+    # Van de terminal lezen, niet van stdin: wie twee commando's tegelijk plakt,
+    # gaf anders de tweede regel als antwoord — "nee" dus — en het tweede
+    # commando werd opgegeten. Geen commit, geen melding, en niemand die het
+    # zag. Zonder terminal (CI) is het antwoord altijd nee.
+    if [ -t 0 ] || [ -r /dev/tty ]; then
+      read -r -p "Nieuwe bestanden meenemen? [j/N] " ja < /dev/tty
+    else
+      ja=N; echo "Nieuwe bestanden meenemen? [j/N] N  (geen terminal — niet meegenomen)"
+    fi
     [ "$ja" = "j" ] || NIEUW=""
   fi
 

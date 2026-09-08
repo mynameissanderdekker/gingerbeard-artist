@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import type { ArtworkItem } from '@/app/(site)/works/all/page'
+import BackLink from '@/components/BackLink'
 
 function formatPrice(excl: number, vatRate: number | string | null | undefined = 9) {
   const incl = excl * (1 + Number(vatRate ?? 9) / 100)
@@ -127,7 +128,7 @@ export function WorksAllClient({ works, categories, initialCat }: Props) {
 
       {/* ── Back link ── */}
       <section className="works-section" style={{ marginTop: '2rem' }}>
-        <Link href="/works" className="works-view-all">← Back to overview</Link>
+        <BackLink fallback="/works" fallbackLabel="Overview" className="works-view-all" />
       </section>
     </>
   )

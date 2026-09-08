@@ -123,7 +123,8 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
     artMedium: artwork.medium,
     url: `${BASE_URL}/works/${slug}`,
     ...(artwork.images?.[0]?.asset?.url ? { image: artwork.images[0].asset.url } : {}),
-    ...(offerPrice != null ? {
+    // Prijs alleen naar Google als hij ook op de pagina staat (webshop).
+    ...(offerPrice != null && artwork.availableInShop === true ? {
       offers: {
         '@type': 'Offer',
         price: offerPrice,

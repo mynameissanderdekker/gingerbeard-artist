@@ -75,6 +75,8 @@ const SHARED = [
   ['lib/markSold.ts',                               'src/lib/markSold.ts'],
   ['lib/reverseSale.ts',                            'src/lib/reverseSale.ts'],
   ['lib/appearance.ts',                             'src/lib/appearance.ts'],
+  ['app/components/BackLink.tsx',                   'src/components/BackLink.tsx'],
+  ['app/components/AddToCalendar.tsx',              'src/components/AddToCalendar.tsx'],
   ['lib/createOrder.ts',                            'src/lib/createOrder.ts'],
   ['lib/adminAuth.ts',                              'src/lib/adminAuth.ts'],
   ['lib/verifyTurnstile.ts',                        'src/lib/verifyTurnstile.ts'],

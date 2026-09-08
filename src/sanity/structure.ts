@@ -2,6 +2,7 @@ import { AddIcon, BasketIcon, DashboardIcon } from '@sanity/icons'
 import { DashboardTool } from './components/DashboardTool'
 import { makeNewDocumentRedirect } from './components/NewDocumentRedirect'
 import { BulkAssignTool } from './components/BulkAssignTool'
+import { BulkPublicationsTool } from './components/BulkPublicationsTool'
 
 /**
  * Eén vorm voor "iets nieuws maken", overal hetzelfde: bovenaan de lijst, met
@@ -166,6 +167,12 @@ function publicationsListItem(S: StructureBuilder) {
         .title('Publications')
         .items([
           addNewItem(S, 'publication', 'publication'),
+
+          S.listItem()
+            .title('Bulk edit publications')
+            .id('bulk-publications')
+            .child(S.component(BulkPublicationsTool).title('Bulk edit publications')),
+
           S.divider(),
           S.listItem()
             .title('All publications')

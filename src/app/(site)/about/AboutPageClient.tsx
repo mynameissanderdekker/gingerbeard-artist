@@ -88,7 +88,7 @@ function QuoteItem({ q }: { q: Quote }) {
           {open && (
             <div className="about-quote-article">
               {q.articleNl && (
-                <p style={{ fontSize: '11px', color: 'var(--color-subtle)', marginBottom: '1.2em' }}>
+                <p style={{ fontSize: 'var(--type-label)', color: 'var(--color-subtle)', marginBottom: '1.2em' }}>
                   Translated from Dutch.{' '}
                   <button
                     onClick={() => setShowNl(v => !v)}
@@ -215,7 +215,7 @@ export default function AboutPage() {
         )}
       </div>
       {cv?.intro && (
-        <p style={{ fontSize: '14px', color: 'var(--color-muted)', marginBottom: '24px', lineHeight: 1.7, marginTop: '8px' }}>
+        <p style={{ fontSize: 'var(--type-body)', color: 'var(--color-muted)', marginBottom: '24px', lineHeight: 1.7, marginTop: '8px' }}>
           {cv.intro}
         </p>
       )}

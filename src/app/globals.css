@@ -17,14 +17,30 @@
   --font-heading: var(--font-sans);   /* h1–h4, h6 */
   --font-accent:  var(--font-sans);   /* h5, pull quotes (italic) */
 
-  /* ── Type scale (exact WP Salient values) ─────────── */
-  --text-xs:    12px;   /* h6 */
-  --text-sm:    14px;
-  --text-base:  15px;   /* body */
-  --text-md:    16px;   /* italic */
-  --text-lg:    20px;   /* h4, h5 */
-  --text-xl:    30px;   /* h2, h3 */
-  --text-h1:    clamp(40px, 6vw, 80px);  /* h1 = 80px in WP */
+  /* ── Type scale — dezelfde negen stappen als de gallery-core ──────────
+     Eén schaal voor de hele publieke site. Er stonden ~80 losse pixelmaten
+     in dit bestand (10 t/m 42px) en rem/em-maten in de pagina's; body was
+     15px. Alles hangt nu aan deze tokens, en `--text-*` (de oude WP-namen)
+     zijn aliassen erop zodat bestaande regels meegaan. */
+  --type-label:   11px;   /* badges, knopjes, all-caps labels          */
+  --type-small:   13px;   /* jaar, afmetingen, meta, secundaire info   */
+  --type-meta:    13px;   /* bijschriften, medium                      */
+  --type-body:    16px;   /* lopende tekst, titels in grids, prijzen   */
+  --type-lead:    17px;   /* intro's, iets grotere lopende tekst       */
+  --type-h4:      21px;   /* sectiekoppen                              */
+  --type-h3:      27px;   /* paginatitels van detailpagina's           */
+  --type-h2:      34px;   /* paginatitels                              */
+  --type-h1:      37px;   /* hero-koppen                               */
+  --type-nav:     18px;   /* hoofdnavigatie — bewust buiten de schaal  */
+
+  --text-xs:    var(--type-small);
+  --text-sm:    var(--type-small);
+  --text-base:  var(--type-body);
+  --text-md:    var(--type-lead);
+  --text-lg:    var(--type-h4);
+  --text-xl:    var(--type-h3);
+  --text-3xl:   var(--type-h2);
+  --text-h1:    clamp(40px, 6vw, 80px);  /* de grote homepage-kop, merk */
 
   /* ── Weights ─────────────────────────────────────── */
   --weight-normal: 400;
@@ -177,7 +193,7 @@ strong { font-weight: var(--weight-bold); }
 
 .section-title {
   font-family: var(--font-heading);
-  font-size: 13px;
+  font-size: var(--type-small);
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -241,12 +257,12 @@ strong { font-weight: var(--weight-bold); }
 
 .about-quote-name {
   margin: 0 0 12px 0;
-  font-size: 15px;
+  font-size: var(--type-body);
 }
 
 .about-quote-text {
   font-style: italic;
-  font-size: 17px;
+  font-size: var(--type-lead);
   line-height: 1.6;
   margin: 0;
   color: var(--tone-900);
@@ -258,7 +274,7 @@ strong { font-weight: var(--weight-bold); }
   border: none;
   padding: 0;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--type-body);
   color: var(--tone-700);
   display: flex;
   align-items: center;
@@ -385,7 +401,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .story-name {
-  font-size: 17px;
+  font-size: var(--type-lead);
   font-weight: 700;
   margin: 0 0 12px 0;
 }
@@ -418,7 +434,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .work-card-title {
-  font-size: 15px;
+  font-size: var(--type-body);
   font-weight: 700;
   margin: 0 0 10px;
   line-height: 1.4;
@@ -430,7 +446,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .work-card-desc {
-  font-size: 14px;
+  font-size: var(--type-body);
   line-height: 1.7;
   color: var(--tone-800);
   margin: 0;
@@ -534,7 +550,7 @@ strong { font-weight: var(--weight-bold); }
   background: var(--tone-200);
   border-radius: 4px 18px 18px 18px;
   padding: 11px 16px;
-  font-size: 14px;
+  font-size: var(--type-body);
   line-height: 1.5;
   color: var(--color-text);
 }
@@ -671,13 +687,13 @@ strong { font-weight: var(--weight-bold); }
 ═══════════════════════════════════════════════════════ */
 
 .cv-project-name {
-  font-size: 20px;
+  font-size: var(--type-h4);
   font-weight: 700;
   margin: 32px 0 4px;
 }
 
 .cv-sub-head {
-  font-size: 12px;
+  font-size: var(--type-small);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -686,7 +702,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .cv-sub-label {
-  font-size: 14px;
+  font-size: var(--type-body);
   font-weight: 700;
   font-family: inherit;
   margin: 10px 0 4px;
@@ -702,7 +718,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .cv-sub-title {
-  font-size: 14px;
+  font-size: var(--type-body);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -730,7 +746,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .cv-press-item {
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--tone-700);
   padding: 4px 10px;
   background: var(--color-surface);
@@ -739,7 +755,7 @@ strong { font-weight: var(--weight-bold); }
 
 .cv-download-btn {
   display: inline-block;
-  font-size: 12px;
+  font-size: var(--type-small);
   letter-spacing: 0.08em;
   color: var(--tone-900);
   border: 1px solid var(--tone-900);
@@ -775,7 +791,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .works-section-title {
-  font-size: 28px;
+  font-size: var(--type-h3);
   font-weight: 700;
   color: var(--tone-ink);
   margin: 0 0 24px 0;
@@ -796,7 +812,7 @@ strong { font-weight: var(--weight-bold); }
   border: 1px solid var(--tone-300);
   background: var(--tone-paper);
   color: var(--color-muted);
-  font-size: 13px;
+  font-size: var(--type-small);
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
@@ -814,7 +830,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .works-section-desc {
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.6;
   color: var(--color-muted);
   margin: -12px 0 20px 0;
@@ -833,7 +849,7 @@ strong { font-weight: var(--weight-bold); }
 
 .works-view-all {
   display: inline-block;
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--tone-800);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -873,7 +889,7 @@ strong { font-weight: var(--weight-bold); }
   display: inline-block;
   background: var(--color-danger);
   color: var(--tone-paper);
-  font-size: 11px;
+  font-size: var(--type-label);
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 50px;
@@ -881,13 +897,13 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .works-product-info h3 {
-  font-size: 18px;
+  font-size: var(--type-lead);
   font-weight: 700;
   margin: 0;
 }
 
 .works-price {
-  font-size: 15px;
+  font-size: var(--type-body);
   color: var(--tone-800);
   margin: 0;
 }
@@ -897,7 +913,7 @@ strong { font-weight: var(--weight-bold); }
   width: fit-content;
   margin-top: 8px;
   padding: 6px 14px;
-  font-size: 11px;
+  font-size: var(--type-label);
   letter-spacing: 0.1em;
   color: var(--tone-500);
   border: 1px solid var(--tone-300);
@@ -915,7 +931,7 @@ strong { font-weight: var(--weight-bold); }
   background: var(--tone-ink);
   color: var(--tone-paper);
   text-decoration: none;
-  font-size: 13px;
+  font-size: var(--type-small);
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -959,7 +975,7 @@ strong { font-weight: var(--weight-bold); }
   color: var(--tone-paper);
   text-align: center;
   padding: 13px 16px;
-  font-size: 13px;
+  font-size: var(--type-small);
   letter-spacing: 0.03em;
   display: flex;
   align-items: center;
@@ -983,14 +999,14 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .works-grid-title {
-  font-size: 14px;
+  font-size: var(--type-body);
   font-weight: 400;
   font-style: italic;
   margin: 10px 0 2px;
 }
 
 .works-grid-medium {
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--tone-600);
   margin: 2px 0 0;
   white-space: nowrap;
@@ -999,13 +1015,13 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .works-grid-meta {
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--color-subtle);
   margin: 1px 0 0;
 }
 
 .works-grid-year {
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--color-subtle);
   margin: 0 0 4px;
 }
@@ -1021,7 +1037,7 @@ strong { font-weight: var(--weight-bold); }
   position: absolute;
   top: 8px;
   left: 8px;
-  font-size: 10px;
+  font-size: var(--type-label);
   font-weight: 700;
   padding: 3px 8px;
   border-radius: 2px;
@@ -1039,7 +1055,7 @@ strong { font-weight: var(--weight-bold); }
 
 
 .works-link {
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--color-muted);
   text-decoration: underline;
   margin-top: 4px;
@@ -1061,7 +1077,7 @@ strong { font-weight: var(--weight-bold); }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--type-body);
   color: var(--tone-500);
 }
 
@@ -1169,14 +1185,14 @@ strong { font-weight: var(--weight-bold); }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--color-subtle);
 }
 
 .zine-viewer-error {
   padding: 40px;
   color: var(--color-danger);
-  font-size: 14px;
+  font-size: var(--type-body);
 }
 
 .zine-viewer-controls {
@@ -1191,7 +1207,7 @@ strong { font-weight: var(--weight-bold); }
   color: var(--tone-paper);
   border: none;
   padding: 8px 18px;
-  font-size: 18px;
+  font-size: var(--type-lead);
   cursor: pointer;
   line-height: 1;
 }
@@ -1202,14 +1218,14 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .zine-viewer-page-num {
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--color-muted);
   min-width: 60px;
   text-align: center;
 }
 
 .zine-viewer-download {
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--color-muted);
   text-decoration: none;
   border: 1px solid var(--tone-400);
@@ -1335,7 +1351,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .zine-card-title {
-  font-size: 15px;
+  font-size: var(--type-body);
   font-weight: 700;
   margin: 0 0 2px;
 }
@@ -1363,7 +1379,7 @@ strong { font-weight: var(--weight-bold); }
   color: var(--tone-paper);
   text-align: center;
   padding: 9px 12px;
-  font-size: 13px;
+  font-size: var(--type-small);
   font-weight: 600;
   letter-spacing: 0.03em;
   margin-top: auto;
@@ -1396,7 +1412,7 @@ strong { font-weight: var(--weight-bold); }
 
 .product-back {
   display: inline-block;
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--color-muted);
   text-decoration: none;
   margin-bottom: 32px;
@@ -1425,20 +1441,20 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .product-name {
-  font-size: 28px;
+  font-size: var(--type-h3);
   font-weight: 700;
   margin: 0 0 8px;
 }
 
 .product-price {
-  font-size: 20px;
+  font-size: var(--type-h4);
   color: var(--tone-900);
   margin: 0 0 24px;
 }
 
 .product-specs {
   margin-bottom: 16px;
-  font-size: 14px;
+  font-size: var(--type-body);
   line-height: 1.8;
 }
 
@@ -1448,7 +1464,7 @@ strong { font-weight: var(--weight-bold); }
 
 .product-shipping {
   margin-bottom: 16px;
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--color-muted);
   font-style: italic;
   line-height: 1.7;
@@ -1459,7 +1475,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .product-stock {
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--color-ok);
   font-weight: 600;
   margin: 0 0 20px;
@@ -1472,7 +1488,7 @@ strong { font-weight: var(--weight-bold); }
   background: var(--tone-ink);
   color: var(--tone-paper);
   text-decoration: none;
-  font-size: 14px;
+  font-size: var(--type-body);
   font-weight: 700;
   letter-spacing: 0.5px;
   text-align: center;
@@ -1502,13 +1518,13 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .product-story-title {
-  font-size: 20px;
+  font-size: var(--type-h4);
   font-weight: 700;
   margin: 0 0 2px;
 }
 
 .product-story-location {
-  font-size: 14px;
+  font-size: var(--type-body);
   font-style: italic;
   color: var(--color-muted);
   margin: 0 0 20px !important;
@@ -1518,7 +1534,7 @@ strong { font-weight: var(--weight-bold); }
   line-height: 1.75;
   margin: 0 0 16px;
   color: var(--tone-800);
-  font-size: 15px;
+  font-size: var(--type-body);
 }
 
 .product-story-reveal img {
@@ -1564,7 +1580,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .product-spec-heading {
-  font-size: 16px;
+  font-size: var(--type-body);
   font-weight: 700;
   font-style: italic;
   margin: 0 0 8px;
@@ -1578,7 +1594,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .product-spec-list li {
-  font-size: 14px;
+  font-size: var(--type-body);
   color: var(--tone-800);
   line-height: 1.7;
   padding-left: 16px;
@@ -1828,7 +1844,7 @@ strong { font-weight: var(--weight-bold); }
   display: block;
   padding: 10px 32px 10px 44px;
   font-family: var(--font-heading);
-  font-size: 15px;
+  font-size: var(--type-body);
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.7);
   text-decoration: none;
@@ -1900,7 +1916,7 @@ strong { font-weight: var(--weight-bold); }
   color: var(--tone-paper);
   text-decoration: none;
   font-family: var(--font-heading);
-  font-size: 13px;
+  font-size: var(--type-small);
   font-weight: var(--weight-normal);
   letter-spacing: var(--tracking-none);
   white-space: nowrap;
@@ -1957,13 +1973,13 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .footer-newsletter-label {
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--tone-700);
   margin: 0;
 }
 
 .footer-newsletter-thanks {
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--tone-700);
   margin: 0;
 }
@@ -1971,7 +1987,7 @@ strong { font-weight: var(--weight-bold); }
 /* Inline form variant (horizontal layout in strip) — must override base after it */
 
 .footer-signup-error {
-  font-size: 11px;
+  font-size: var(--type-label);
   color: var(--color-danger);
 }
 
@@ -1980,7 +1996,7 @@ strong { font-weight: var(--weight-bold); }
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--tone-600);
   cursor: pointer;
   white-space: nowrap;
@@ -2018,11 +2034,11 @@ strong { font-weight: var(--weight-bold); }
   grid-template-columns: repeat(4, 1fr);
   gap: 32px;
   padding: 40px 60px;
-  font-size: 13px;
+  font-size: var(--type-small);
 }
 
 .site-footer h4 {
-  font-size: 13px;
+  font-size: var(--type-small);
   font-weight: 700;
   margin: 0 0 12px 0;
 }
@@ -2050,7 +2066,7 @@ strong { font-weight: var(--weight-bold); }
 
 .footer-signup input {
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: var(--type-small);
   border: 1px solid var(--tone-300);
   background: transparent;
   outline: none;
@@ -2064,7 +2080,7 @@ strong { font-weight: var(--weight-bold); }
 
 .footer-signup button {
   padding: 7px 14px;
-  font-size: 11px;
+  font-size: var(--type-label);
   letter-spacing: 1px;
   text-transform: uppercase;
   background: var(--tone-900);
@@ -2104,7 +2120,7 @@ strong { font-weight: var(--weight-bold); }
   align-items: center;
   padding: 14px 60px;
   border-top: 1px solid var(--color-border);
-  font-size: 11px;
+  font-size: var(--type-label);
   color: var(--tone-400);
 }
 
@@ -2573,20 +2589,20 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .projects-date {
-  font-size: 12px;
+  font-size: var(--type-small);
   color: var(--color-subtle);
   min-width: 100px;
   padding-top: 4px;
 }
 
 .projects-name {
-  font-size: 17px;
+  font-size: var(--type-lead);
   font-weight: 700;
   margin: 0 0 4px;
 }
 
 .projects-desc {
-  font-size: 14px;
+  font-size: var(--type-body);
   color: var(--color-muted);
   margin: 0;
 }
@@ -2641,13 +2657,13 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .zine-card-title {
-  font-size: 15px;
+  font-size: var(--type-body);
   font-weight: 700;
   margin: 0 0 2px;
 }
 
 .zine-card-date {
-  font-size: 13px;
+  font-size: var(--type-small);
   color: var(--tone-600);
   margin: 0 0 12px;
   font-style: italic;
@@ -2665,7 +2681,7 @@ strong { font-weight: var(--weight-bold); }
 .zine-card-btn {
   display: block;
   text-align: center;
-  font-size: 13px;
+  font-size: var(--type-small);
   font-weight: 700;
   color: var(--tone-paper);
   background: var(--tone-ink);

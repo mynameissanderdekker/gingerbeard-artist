@@ -2,6 +2,7 @@ import { defineField, defineType } from 'sanity'
 import { ShareExhibitionRoomLink } from '../components/ShareRoomLink'
 import { ExhibitionArtworkPicker } from '../components/ExhibitionArtworkPicker'
 import { VenuePicker } from '../components/VenuePicker'
+import { subtitleField, openingField } from './opening'
 
 export const exhibition = defineType({
   name: 'exhibition',
@@ -22,10 +23,14 @@ export const exhibition = defineType({
   // Tabbladen gelijk aan de gallery-template: eerst de expositie opzetten, dan
   // werken koppelen, foto's toevoegen, en delen. CV staat apart omdat dat bij
   // een kunstenaar een eigen doel dient — het voedt je cv-pagina.
+  // Tabbladen in de volgorde waarin je een evenement opzet, en Details in de
+  // volgorde waarin de pagina het toont. Homepage staat apart: aankondigen is
+  // een andere handeling op een ander moment dan het evenement invoeren.
   groups: [
     { name: 'details',      title: 'Details', default: true },
+    { name: 'homepage',     title: 'Homepage' },
     { name: 'artworks',     title: 'Artworks' },
-    { name: 'installation', title: 'Installation' },
+    { name: 'installation', title: 'Photos' },
     { name: 'share',        title: 'Share' },
     { name: 'cv',           title: 'CV' },
   ],
@@ -49,6 +54,36 @@ export const exhibition = defineType({
       type: 'slug',
       options: { source: 'title' },
       validation: (r) => r.required(),
+    }),
+    defineField({
+      name: 'startDate',
+      group: 'details',
+      fieldset: 'dates',
+      title: 'Start date',
+      type: 'date',
+    }),
+    defineField({
+      name: 'endDate',
+      group: 'details',
+      fieldset: 'dates',
+      title: 'End date',
+      type: 'date',
+    }),
+    defineField({
+      name: 'exhibitionType',
+      group: 'details',
+      title: 'Exhibition type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Solo exhibition', value: 'solo' },
+          { title: 'Duo exhibition', value: 'duo' },
+          { title: 'Group exhibition', value: 'group' },
+          { title: 'Permanent installation', value: 'permanent' },
+          { title: 'Special project', value: 'special' },
+        ],
+        layout: 'dropdown',
+      },
     }),
     defineField({
       // Kiest uit de galeries waar je mee werkt (contacten met het vinkje) en je
@@ -85,71 +120,6 @@ export const exhibition = defineType({
       ],
     }),
     defineField({
-      // Bleef staan naast de venue-keuze: oudere exposities bewaren hier hun
-      // plaatsnaam, en die willen we niet kwijt.
-      name: 'gallery',
-      group: 'details',
-      title: 'Gallery / venue (previous field)',
-      type: 'string',
-      readOnly: true,
-      hidden: ({ document }) => !document?.gallery,
-    }),
-    defineField({
-      name: 'location',
-      group: 'details',
-      title: 'Location (previous field)',
-      type: 'string',
-      readOnly: true,
-      hidden: ({ document }) => !document?.location,
-    }),
-    defineField({
-      name: 'startDate',
-      group: 'details',
-      fieldset: 'dates',
-      title: 'Start date',
-      type: 'date',
-    }),
-    defineField({
-      name: 'endDate',
-      group: 'details',
-      fieldset: 'dates',
-      title: 'End date',
-      type: 'date',
-    }),
-    defineField({
-      name: 'exhibitionType',
-      group: 'details',
-      title: 'Exhibition type',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Solo exhibition', value: 'solo' },
-          { title: 'Duo exhibition', value: 'duo' },
-          { title: 'Group exhibition', value: 'group' },
-          { title: 'Permanent installation', value: 'permanent' },
-          { title: 'Special project', value: 'special' },
-        ],
-        layout: 'dropdown',
-      },
-    }),
-    defineField({
-      name: 'cvProject',
-      group: 'cv',
-      title: 'CV — Project',
-      type: 'reference',
-      to: [{ type: 'project' }],
-      options: { disableNew: true },
-      description: 'Which project does this exhibition belong to? Used to group exhibitions on the CV.',
-    }),
-    defineField({
-      name: 'showInCV',
-      group: 'cv',
-      title: 'Show in CV',
-      type: 'boolean',
-      initialValue: false,
-      description: 'Include this exhibition in the CV on the About page.',
-    }),
-    defineField({
       name: 'hasPage',
       group: 'details',
       title: 'Has own page',
@@ -158,6 +128,16 @@ export const exhibition = defineType({
       initialValue: false,
     }),
     defineField({
+      name: 'image',
+      group: 'details',
+      title: 'Banner Image',
+      type: 'image',
+      options: { hotspot: true, accept: 'image/*' },
+    }),
+    // Ondertitel en opening-blok — zie ./opening.ts.
+    subtitleField,
+    openingField('exhibition'),
+    defineField({
       name: 'description',
       group: 'details',
       title: 'Description',
@@ -165,11 +145,15 @@ export const exhibition = defineType({
       of: [{ type: 'block', styles: [{ title: 'Normal', value: 'normal' }, { title: 'H2', value: 'h2' }] }],
     }),
     defineField({
-      name: 'image',
+      // Alleen-lezen: je koppelt vanuit het persbericht ("Related exhibitions"),
+      // niet van twee kanten. Dat stond hier eerder wel, met de instructie om
+      // beide lijsten gelijk te houden — een belofte die niemand nakomt.
+      name: 'pressDerived',
       group: 'details',
-      title: 'Banner Image',
-      type: 'image',
-      options: { hotspot: true, accept: 'image/*' },
+      title: 'Press',
+      description: 'Linked from the press item itself. Open a press article to add or remove.',
+      type: 'string',
+      readOnly: true,
     }),
     defineField({
       // Zelfde veldnaam als in de gallery-template, andere vorm op de site:
@@ -177,7 +161,7 @@ export const exhibition = defineType({
       // hier historie zijn — bijna geen enkele heeft een einddatum, dus
       // 'loopt nu' zegt niets en moet je zelf aanwijzen.
       name: 'showOnHomepage',
-      group: 'details',
+      group: 'homepage',
       title: 'Announce on the homepage',
       type: 'boolean',
       initialValue: false,
@@ -190,7 +174,7 @@ export const exhibition = defineType({
       // einddatum, dus zonder deze velden blijft de pop-up staan tot je het
       // vinkje zelf uitzet.
       name: 'announceFrom',
-      group: 'details',
+      group: 'homepage',
       fieldset: 'announce',
       title: 'Pop-up from',
       type: 'date',
@@ -199,26 +183,12 @@ export const exhibition = defineType({
     }),
     defineField({
       name: 'announceUntil',
-      group: 'details',
+      group: 'homepage',
       fieldset: 'announce',
       title: 'Pop-up until',
       type: 'date',
       hidden: ({ document }) => !document?.showOnHomepage,
       description: 'Leave empty to keep showing it until you switch it off.',
-    }),
-    defineField({
-      name: 'priceListPassword',
-      group: 'share',
-      title: 'Price list password',
-      type: 'string',
-      description: 'If set, the shared price list asks for this password. Leave empty for your own use only.',
-    }),
-    defineField({
-      name: 'images',
-      group: 'installation',
-      title: 'Installation photos',
-      type: 'array',
-      of: [{ type: 'image', options: { hotspot: true } }],
     }),
     defineField({
       name: 'artworkSeries',
@@ -238,15 +208,18 @@ export const exhibition = defineType({
       of: [{ type: 'reference', to: [{ type: 'artwork' }], options: { disableNew: true } }],
     }),
     defineField({
-      // Alleen-lezen: je koppelt vanuit het persbericht ("Related exhibitions"),
-      // niet van twee kanten. Dat stond hier eerder wel, met de instructie om
-      // beide lijsten gelijk te houden — een belofte die niemand nakomt.
-      name: 'pressDerived',
+      name: 'images',
+      group: 'installation',
+      title: 'Installation photos',
+      type: 'array',
+      of: [{ type: 'image', options: { hotspot: true } }],
+    }),
+    defineField({
+      name: 'priceListPassword',
       group: 'share',
-      title: 'Press',
-      description: 'Linked from the press item itself. Open a press article to add or remove.',
+      title: 'Price list password',
       type: 'string',
-      readOnly: true,
+      description: 'If set, the shared price list asks for this password. Leave empty for your own use only.',
     }),
     defineField({
       name: 'shareRoomLink',
@@ -256,6 +229,41 @@ export const exhibition = defineType({
       readOnly: true,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       components: { field: ShareExhibitionRoomLink as any },
+    }),
+    defineField({
+      name: 'cvProject',
+      group: 'cv',
+      title: 'CV — Project',
+      type: 'reference',
+      to: [{ type: 'project' }],
+      options: { disableNew: true },
+      description: 'Which project does this exhibition belong to? Used to group exhibitions on the CV.',
+    }),
+    defineField({
+      name: 'showInCV',
+      group: 'cv',
+      title: 'Show in CV',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Include this exhibition in the CV on the About page.',
+    }),
+    defineField({
+      // Bleef staan naast de venue-keuze: oudere exposities bewaren hier hun
+      // plaatsnaam, en die willen we niet kwijt.
+      name: 'gallery',
+      group: 'details',
+      title: 'Gallery / venue (previous field)',
+      type: 'string',
+      readOnly: true,
+      hidden: ({ document }) => !document?.gallery,
+    }),
+    defineField({
+      name: 'location',
+      group: 'details',
+      title: 'Location (previous field)',
+      type: 'string',
+      readOnly: true,
+      hidden: ({ document }) => !document?.location,
     }),
   ],
   preview: {

@@ -5,7 +5,8 @@ import { client } from '@/sanity/lib/client'
 import { urlFor } from '@/sanity/lib/image'
 import { PortableText } from '@portabletext/react'
 import BackLink from '@/components/BackLink'
-import { AddToCalendar } from '@/components/AddToCalendar'
+import { EventIntro, type Opening } from '@/components/EventIntro'
+import { datumBereik } from '@/lib/datumBereik'
 
 export const revalidate = 3600
 
@@ -18,10 +19,10 @@ export async function generateMetadata({ params }: Props) {
   const img = fair.image?.asset?.url ?? fair.images?.[0]?.asset?.url
   return {
     title: fair.title,
-    description: undefined,
+    description: fair.subtitle ?? undefined,
     openGraph: {
       title: fair.title,
-      description: undefined,
+      description: fair.subtitle ?? undefined,
       ...(img ? { images: [{ url: `${img}?w=1200&auto=format` }] } : {}),
     },
   }
@@ -31,6 +32,7 @@ async function getArtFair(slug: string) {
   return client.fetch(
     `*[_type == "artFair" && slug.current == $slug][0]{
       _id, title, slug, booth, location, startDate, endDate, openingDate, openingTime, description, websiteUrl,
+      subtitle, opening,
       // "Banner Image" stond wel in het schema maar werd hier niet uitgelezen:
       // je kon hem invullen en er gebeurde niets, op de pagina noch in de
       // aankondiging op de homepage.
@@ -50,19 +52,6 @@ function imgUrl(asset: { url?: string; _ref?: string }, width: number) {
   return urlFor({ asset: { _ref: asset._ref } }).width(width).auto('format').quality(85).url()
 }
 
-/**
- * Eén datum, kort en op één regel.
- *
- * Er stond "17 September 2026 – 20 September 2026" in een kolom van 20% breed,
- * dus dat brak middenin de tweede datum af ("20 [enter] September 2026").
- * Start en eind staan nu onder elkaar met een eigen label — dat leest als een
- * gegeven in plaats van als een afgebroken zin, en past altijd.
- */
-function korteDatum(d?: string) {
-  if (!d) return null
-  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-}
-
 function formatPrice(excl: number, vatRate = 9) {
   const incl = excl * (1 + vatRate / 100)
   return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(incl)
@@ -76,13 +65,24 @@ export default async function ArtFairPage({ params }: Props) {
   const images = fair.images ?? []
   const artworks = fair.artworks ?? []
 
-  const start = korteDatum(fair.startDate)
-  const eind = korteDatum(fair.endDate)
+  // "Booth 12" — maar staat er al een naam in het veld ("Gallery Torch"), dan
+  // geen "Booth" ervoor.
+  const stand = fair.booth ? (/^[A-Za-z]?\d/.test(fair.booth) ? `Booth ${fair.booth}` : fair.booth) : null
+  const meta = [datumBereik(fair.startDate, fair.endDate), fair.location, stand].filter(Boolean).join(' · ')
+  const plek = [fair.location, stand].filter(Boolean).join(', ') || undefined
+  // Terugval op de oude velden `openingDate` / `openingTime` zolang het nieuwe
+  // blok leeg is — zo verdwijnt er niets van bestaande beurzen. Een tijd die
+  // geen HH:MM is (bijv. "17:00 – 19:00") gaat als extra regel mee.
+  const oudeTijd = typeof fair.openingTime === 'string' && /^\d{2}:\d{2}$/.test(fair.openingTime) ? fair.openingTime : undefined
+  const opening: Opening | null = fair.opening ?? (fair.openingDate ? {
+    show: true, heading: 'Opening', date: fair.openingDate, startTime: oudeTijd,
+    note: !oudeTijd && fair.openingTime ? fair.openingTime : undefined,
+  } : null)
 
   return (
     <div className="site-container" style={{ paddingTop: '3rem', paddingBottom: '4rem' }}>
 
-      <BackLink />
+      <BackLink fallback="/" fallbackLabel="Home" />
 
       {/* Banner, 16:9 — de gangbare bannerverhouding. Een vaste maxHeight gaf
           per afbeelding een andere hoogte, dus de pagina sprong bij elke beurs
@@ -100,104 +100,33 @@ export default async function ArtFairPage({ params }: Props) {
         />
       )}
 
-      {/* Title */}
-      <div style={{ marginBottom: '2rem' }}>
-        <p className="section-title" style={{ marginTop: 0, marginBottom: '4px' }}>Art fair</p>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 400, margin: 0 }}>{fair.title}</h1>
+      {/* Datum + plek + stand, dan de titel — zelfde indeling als de expositie
+          en als de gallery-core. */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <p className="section-title" style={{ marginTop: 0, marginBottom: '2rem' }}>{meta || 'Art fair'}</p>
+        <h1 style={{ fontSize: 'var(--type-h3)', fontWeight: 400, margin: 0 }}>{fair.title}</h1>
       </div>
 
-      {/* 2-col: details | description */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(140px, 200px) minmax(0, 1fr)', gap: '48px', alignItems: 'start', marginBottom: '4rem', borderTop: '1px solid var(--tone-200)', paddingTop: '24px' }}>
-
-        <dl style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.9rem', margin: 0 }}>
-          {fair.location && (
-            <div>
-              <dt style={{ color: 'var(--color-subtle)' }}>Location</dt>
-              <dd style={{ margin: 0 }}>{fair.location}</dd>
-            </div>
-          )}
-          {start && !eind && (
-            <div>
-              <dt style={{ color: 'var(--color-subtle)' }}>Date</dt>
-              <dd style={{ margin: 0 }}>{start}</dd>
-            </div>
-          )}
-          {start && eind && (
-            <>
-              <div>
-                <dt style={{ color: 'var(--color-subtle)' }}>Start</dt>
-                <dd style={{ margin: 0 }}>{start}</dd>
-              </div>
-              <div>
-                <dt style={{ color: 'var(--color-subtle)' }}>End</dt>
-                <dd style={{ margin: 0 }}>{eind}</dd>
-              </div>
-            </>
-          )}
-          {fair.booth && (
-            <div>
-              <dt style={{ color: 'var(--color-subtle)' }}>Booth</dt>
-              <dd style={{ margin: 0 }}>{fair.booth}</dd>
-            </div>
-          )}
-          {fair.openingDate && (
-            <div>
-              <dt style={{ color: 'var(--color-subtle)' }}>Opening</dt>
-              <dd style={{ margin: 0 }}>
-                {korteDatum(fair.openingDate)}
-                {fair.openingTime && ` · ${fair.openingTime}`}
-              </dd>
-            </div>
-          )}
-          {fair.websiteUrl && (
-            <div style={{ marginTop: '12px' }}>
-              <a href={fair.websiteUrl} target="_blank" rel="noopener noreferrer"
-                style={{ fontSize: '0.85rem', textDecoration: 'underline' }}>
-                Visit website
-              </a>
-            </div>
-          )}
-          {fair.openingDate && (
-            <div style={{ marginTop: '16px' }}>
-              <AddToCalendar
-                title={`Opening: ${fair.title}`}
-                startDate={fair.openingDate}
-                endDate={fair.openingDate}
-                startTime={fair.openingTime ?? undefined}
-                endTime={fair.openingTime ?? undefined}
-                location={fair.location ?? undefined}
-                url={`https://www.mynameissanderdekker.com/art-fairs/${fair.slug?.current}`}
-              />
-            </div>
-          )}
-        </dl>
-
+      <div style={{ maxWidth: 720, marginBottom: '4rem' }}>
+        <EventIntro
+          subtitle={fair.subtitle ?? undefined}
+          opening={opening}
+          title={fair.title}
+          location={plek}
+          url={`${process.env.NEXT_PUBLIC_BASE_URL ?? ''}/art-fairs/${fair.slug?.current}`}
+          aboutLabel={Array.isArray(fair.description) && fair.description.length > 0 ? 'About the fair' : undefined}
+        />
         {Array.isArray(fair.description) && fair.description.length > 0 && (
-          <div style={{ fontSize: '0.9rem', color: 'var(--tone-700)', lineHeight: 1.7 }}>
+          <div style={{ fontSize: 'var(--type-body)', color: 'var(--tone-700)', lineHeight: 1.7 }}>
             <PortableText value={fair.description} />
           </div>
         )}
+        {fair.websiteUrl && (
+          <p style={{ marginTop: 16, fontSize: 'var(--type-body)' }}>
+            <a href={fair.websiteUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>Visit the fair website ↗</a>
+          </p>
+        )}
       </div>
-
-      {/* Booth photos — artwork-style grid */}
-      {images.length > 0 && (
-        <div style={{ marginBottom: '4rem' }}>
-          <h2 className="section-title">Booth photos</h2>
-          <div className="works-grid">
-            {images.map((img: typeof images[0], i: number) => {
-              const url = img?.asset ? imgUrl(img.asset, 800) : null
-              return url ? (
-                <div key={i} className="works-grid-item">
-                  <div className="works-grid-img-wrap">
-                    <img src={url} alt={`${fair.name} — ${i + 1}`} className="works-grid-img" />
-                  </div>
-                  <h3 className="works-grid-title" style={{ fontStyle: 'normal', fontWeight: 400 }}>Booth photo</h3>
-                </div>
-              ) : null
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Artworks */}
       {artworks.length > 0 && (
@@ -231,6 +160,25 @@ export default async function ArtFairPage({ params }: Props) {
                 </div>
               )
               return <Link key={a._id} href={`/works/${a.slug.current}`} className="works-grid-item-link">{inner}</Link>
+            })}
+          </div>
+        </div>
+      )}
+      {/* Booth photos — artwork-style grid */}
+      {images.length > 0 && (
+        <div style={{ marginBottom: '4rem' }}>
+          <h2 className="section-title">Booth photos</h2>
+          <div className="works-grid">
+            {images.map((img: typeof images[0], i: number) => {
+              const url = img?.asset ? imgUrl(img.asset, 800) : null
+              return url ? (
+                <div key={i} className="works-grid-item">
+                  <div className="works-grid-img-wrap">
+                    <img src={url} alt={`${fair.name} — ${i + 1}`} className="works-grid-img" />
+                  </div>
+                  <h3 className="works-grid-title" style={{ fontStyle: 'normal', fontWeight: 400 }}>Booth photo</h3>
+                </div>
+              ) : null
             })}
           </div>
         </div>

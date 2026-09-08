@@ -1,5 +1,6 @@
 import { defineField, defineType } from 'sanity'
 import { ShareArtFairRoomLink } from '../components/ShareRoomLink'
+import { subtitleField, openingField } from './opening'
 
 export const artFair = defineType({
   name: 'artFair',
@@ -9,10 +10,14 @@ export const artFair = defineType({
   // Zelfde tabbladen als de expositie, zodat de twee naast elkaar te lezen zijn.
   // De betekenis blijft verschillend: een expositie is een verhaal met ruimte,
   // een beurs een etalage — vandaar dat het twee types blijven.
+  // Tabbladen in de volgorde waarin je een evenement opzet, en Details in de
+  // volgorde waarin de pagina het toont. Homepage staat apart: aankondigen is
+  // een andere handeling op een ander moment dan het evenement invoeren.
   groups: [
     { name: 'details',      title: 'Details', default: true },
+    { name: 'homepage',     title: 'Homepage' },
     { name: 'artworks',     title: 'Artworks' },
-    { name: 'installation', title: 'Installation' },
+    { name: 'installation', title: 'Photos' },
     { name: 'share',        title: 'Share' },
     { name: 'cv',           title: 'CV' },
   ],
@@ -43,20 +48,6 @@ export const artFair = defineType({
       validation: (r) => r.required(),
     }),
     defineField({
-      name: 'booth',
-      group: 'details',
-      title: 'Stand / Booth',
-      type: 'string',
-      description: 'E.g. "Booth A12" or "Gallery Torch"',
-    }),
-    defineField({
-      name: 'location',
-      group: 'details',
-      title: 'Location',
-      type: 'string',
-      description: 'E.g. "Rotterdam, NL"',
-    }),
-    defineField({
       name: 'startDate',
       group: 'details',
       fieldset: 'dates',
@@ -71,89 +62,18 @@ export const artFair = defineType({
       type: 'date',
     }),
     defineField({
-      // Specifiek moment voor de opening/vernissage — niet de looptijd van de
-      // beurs, maar het ene evenement waarvoor je een agenda-uitnodiging wilt.
-      // AddToCalendar gebruikt dit op de pagina; het email-template ook.
-      name: 'openingDate',
+      name: 'location',
       group: 'details',
-      title: 'Opening / vernissage date',
-      type: 'date',
-      description: 'The specific date of the opening or vernissage, if applicable.',
-    }),
-    defineField({
-      name: 'openingTime',
-      group: 'details',
-      title: 'Opening time',
+      title: 'Location',
       type: 'string',
-      description: 'E.g. "18:00". Leave empty if time is unknown.',
-      validation: (r) =>
-        r.custom((val) => {
-          if (!val) return true
-          if (/^\d{2}:\d{2}$/.test(val)) return true
-          return 'Use HH:MM format, e.g. "18:00"'
-        }),
+      description: 'E.g. "Rotterdam, NL"',
     }),
     defineField({
-      // Zelfde aankondiging als bij de expositie. Een beurs is bij uitstek iets
-      // wat je vooraf meldt — hij duurt vier dagen, dus achteraf heeft niemand
-      // er meer iets aan.
-      name: 'showOnHomepage',
+      name: 'booth',
       group: 'details',
-      title: 'Announce on the homepage',
-      type: 'boolean',
-      initialValue: false,
-      description: 'Shows a pop-up to visitors, once each. Set the period below.',
-    }),
-    defineField({
-      name: 'announceFrom',
-      group: 'details',
-      fieldset: 'announce',
-      title: 'Pop-up from',
-      type: 'date',
-      hidden: ({ document }) => !document?.showOnHomepage,
-      description: 'Leave empty to start right away.',
-    }),
-    defineField({
-      name: 'announceUntil',
-      group: 'details',
-      fieldset: 'announce',
-      title: 'Pop-up until',
-      type: 'date',
-      hidden: ({ document }) => !document?.showOnHomepage,
-      description: 'Leave empty to keep showing it until you switch it off.',
-    }),
-    defineField({
-      // Ontbrak hier, terwijl de expositie en de gallery-template hem wel
-      // hebben — en de aankondiging op de homepage hem leest.
-      name: 'image',
-      group: 'details',
-      title: 'Banner Image',
-      type: 'image',
-      options: { hotspot: true, accept: 'image/*' },
-    }),
-    defineField({
-      name: 'images',
-      group: 'installation',
-      title: 'Booth / installation photos',
-      type: 'array',
-      of: [{ type: 'image', options: { hotspot: true } }],
-    }),
-    defineField({
-      name: 'cvProject',
-      group: 'cv',
-      title: 'CV — Project',
-      type: 'reference',
-      to: [{ type: 'project' }],
-      options: { disableNew: true },
-      description: 'Which project does this art fair belong to? Used to group entries on the CV.',
-    }),
-    defineField({
-      name: 'showInCV',
-      group: 'cv',
-      title: 'Show in CV',
-      type: 'boolean',
-      initialValue: false,
-      description: 'Include this art fair in the CV on the About page.',
+      title: 'Stand / Booth',
+      type: 'string',
+      description: 'E.g. "Booth A12" or "Gallery Torch"',
     }),
     defineField({
       name: 'hasPage',
@@ -164,11 +84,71 @@ export const artFair = defineType({
       initialValue: false,
     }),
     defineField({
+      // Ontbrak hier, terwijl de expositie en de gallery-template hem wel
+      // hebben — en de aankondiging op de homepage hem leest.
+      name: 'image',
+      group: 'details',
+      title: 'Banner Image',
+      type: 'image',
+      options: { hotspot: true, accept: 'image/*' },
+    }),
+    subtitleField,
+    openingField('fair'),
+    defineField({
+      // Heette `notes` en was een kaal tekstveld; de expositie en de
+      // gallery-template gebruiken hier `description` met opmaak.
+      name: 'description',
+      group: 'details',
+      title: 'Description',
+      type: 'array',
+      of: [{ type: 'block', styles: [{ title: 'Normal', value: 'normal' }, { title: 'H2', value: 'h2' }] }],
+    }),
+    defineField({
       name: 'websiteUrl',
       group: 'details',
       title: 'Website URL',
       description: 'Link to the fair or gallery website',
       type: 'url',
+    }),
+    defineField({
+      // Eén richting, net als bij de expositie: je koppelt vanuit het
+      // persbericht (`press.exhibitions[]` accepteert ook beurzen). Twee
+      // lijsten die je met de hand gelijk moet houden lopen altijd uit elkaar.
+      name: 'pressDerived',
+      group: 'details',
+      title: 'Press',
+      description: 'Linked from the press item itself. Open a press article to add or remove.',
+      type: 'string',
+      readOnly: true,
+    }),
+    defineField({
+      // Zelfde aankondiging als bij de expositie. Een beurs is bij uitstek iets
+      // wat je vooraf meldt — hij duurt vier dagen, dus achteraf heeft niemand
+      // er meer iets aan.
+      name: 'showOnHomepage',
+      group: 'homepage',
+      title: 'Announce on the homepage',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Shows a pop-up to visitors, once each. Set the period below.',
+    }),
+    defineField({
+      name: 'announceFrom',
+      group: 'homepage',
+      fieldset: 'announce',
+      title: 'Pop-up from',
+      type: 'date',
+      hidden: ({ document }) => !document?.showOnHomepage,
+      description: 'Leave empty to start right away.',
+    }),
+    defineField({
+      name: 'announceUntil',
+      group: 'homepage',
+      fieldset: 'announce',
+      title: 'Pop-up until',
+      type: 'date',
+      hidden: ({ document }) => !document?.showOnHomepage,
+      description: 'Leave empty to keep showing it until you switch it off.',
     }),
     defineField({
       name: 'artworkSeries',
@@ -187,24 +167,11 @@ export const artFair = defineType({
       of: [{ type: 'reference', to: [{ type: 'artwork' }] }],
     }),
     defineField({
-      // Eén richting, net als bij de expositie: je koppelt vanuit het
-      // persbericht (`press.exhibitions[]` accepteert ook beurzen). Twee
-      // lijsten die je met de hand gelijk moet houden lopen altijd uit elkaar.
-      name: 'pressDerived',
-      group: 'share',
-      title: 'Press',
-      description: 'Linked from the press item itself. Open a press article to add or remove.',
-      type: 'string',
-      readOnly: true,
-    }),
-    defineField({
-      // Heette `notes` en was een kaal tekstveld; de expositie en de
-      // gallery-template gebruiken hier `description` met opmaak.
-      name: 'description',
-      group: 'details',
-      title: 'Description',
+      name: 'images',
+      group: 'installation',
+      title: 'Booth / installation photos',
       type: 'array',
-      of: [{ type: 'block', styles: [{ title: 'Normal', value: 'normal' }, { title: 'H2', value: 'h2' }] }],
+      of: [{ type: 'image', options: { hotspot: true } }],
     }),
     // De expositie had dit veld wel en de beurs niet: je kon de prijslijst van
     // een expositie beveiligen, die van een beurs niet.
@@ -223,6 +190,44 @@ export const artFair = defineType({
       readOnly: true,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       components: { field: ShareArtFairRoomLink as any },
+    }),
+    defineField({
+      name: 'cvProject',
+      group: 'cv',
+      title: 'CV — Project',
+      type: 'reference',
+      to: [{ type: 'project' }],
+      options: { disableNew: true },
+      description: 'Which project does this art fair belong to? Used to group entries on the CV.',
+    }),
+    defineField({
+      name: 'showInCV',
+      group: 'cv',
+      title: 'Show in CV',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Include this art fair in the CV on the About page.',
+    }),
+    // `openingDate` / `openingTime` zijn vervangen door het `opening`-blok
+    // (zie ./opening.ts) dat de expositie ook heeft. Bestaande waarden blijven
+    // zichtbaar tot ze zijn overgezet; op de pagina vallen ze terug als het
+    // nieuwe blok leeg is.
+    defineField({
+      name: 'openingDate',
+      group: 'details',
+      title: 'Opening date (old field)',
+      type: 'date',
+      readOnly: true,
+      hidden: ({ document }) => !document?.openingDate,
+      description: 'Replaced by "Opening / practical information" below. Copy it there and clear this field.',
+    }),
+    defineField({
+      name: 'openingTime',
+      group: 'details',
+      title: 'Opening time (old field)',
+      type: 'string',
+      readOnly: true,
+      hidden: ({ document }) => !document?.openingTime,
     }),
   ],
   preview: {

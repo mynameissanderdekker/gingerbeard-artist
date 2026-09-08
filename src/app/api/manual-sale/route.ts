@@ -112,11 +112,23 @@ export async function POST(req: NextRequest) {
       .commit()
     contactId = body.contactId
   } else {
-    const existing = await sanity.fetch<{ _id: string } | null>(
-      `*[_type == "contact" && email == $email][0]{ _id }`,
+    // Gepubliceerd vóór concept: een contact dat nog niet gepubliceerd is
+    // bestaat alleen als drafts.<id>; een order die daarnaar verwijst wijst
+    // naar niets zodra het contact wél gepubliceerd wordt (factuur zonder
+    // naam en adres — Torch, 7 sept 2026). Een concept publiceren we eerst.
+    const gevonden = await sanity.fetch<{ _id: string }[]>(
+      `*[_type == "contact" && email == $email]{ _id }`,
       { email: body.email }
     )
-    if (existing) {
+    const existing = gevonden.find((c) => !c._id.startsWith('drafts.')) ?? gevonden[0] ?? null
+    if (existing?._id.startsWith('drafts.')) {
+      const draft = await sanity.getDocument(existing._id)
+      const publicId = existing._id.replace(/^drafts\./, '')
+      if (draft) {
+        await sanity.transaction().createOrReplace({ ...draft, _id: publicId }).delete(existing._id).commit()
+      }
+      contactId = publicId
+    } else if (existing) {
       contactId = existing._id
     } else {
       const created = await sanity.create({
@@ -133,6 +145,9 @@ export async function POST(req: NextRequest) {
         country:    body.country || undefined,
         type:       'collector',
         source:     `manual sale — ${body.invoiceNumber}`,
+        // Standaard aan, zoals in de Studio: je voert dit contact zelf in.
+        subscribed: true,
+        subscribedAt: new Date().toISOString(),
       })
       contactId = created._id
     }
@@ -248,7 +263,7 @@ export async function POST(req: NextRequest) {
       lastName:   body.lastName,
       type:       'collector',
       country:    body.country,
-      subscribed: false,
+      subscribed: true,
     })
   } catch { /* non-critical */ }
 

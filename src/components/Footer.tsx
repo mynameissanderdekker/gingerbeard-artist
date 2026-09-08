@@ -201,7 +201,7 @@ export default function Footer({ social = {}, contactEmail = '' }: { social?: Fo
           <a href="/legal-terms">Legal &amp; Terms</a>
         </div>
         <div className="footer-bottom-right">
-          <span>Made by Sander Dekker</span>
+          <span>fueled by <a href="https://www.gingerbeard.works/" target="_blank" rel="noopener noreferrer">GingerBeard.Works</a></span>
         </div>
       </div>
 

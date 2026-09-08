@@ -45,6 +45,8 @@ const controles: Bevinding[] = [
   { ernst: 'fout', label: 'betaalde order, maar het werk staat niet op verkocht',
     q: `_type == "order" && status == "paid" && count(items[item->editionType == "unique" && item->status != "sold"]) > 0`,
     toon: `orderNumber, "werken": items[item->editionType == "unique" && item->status != "sold"].item->{title, status}` },
+  { ernst: 'fout', label: 'prijs incl. BTW is geen rond bedrag terwijl excl. er gelijk aan is — waarschijnlijk een excl-bedrag in het incl-veld (1 sept 2026: 16 werken)',
+    q: `_type == "artwork" && defined(priceIncVat) && priceIncVat == priceExclVAT && priceIncVat != round(priceIncVat)`, toon: `title, priceIncVat` },
   { ernst: 'fout', label: 'te koop in de webshop zonder prijs',
     q: `_type in ["artwork", "publication"] && availableInShop == true && !(priceIncVat > 0)` },
   { ernst: 'fout', label: 'unieke werken die vaker dan één keer in een betaalde order zitten',

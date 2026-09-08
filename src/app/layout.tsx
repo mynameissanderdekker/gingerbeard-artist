@@ -4,6 +4,7 @@ import "./globals.css";
 import { client } from '@/sanity/lib/client'
 import { theme } from '@/themes'
 import { appearanceTokens, tokensAlsCss, type Appearance } from '@/lib/appearance'
+import { NavDepthTracker } from '@/components/BackLink'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.mynameissanderdekker.com'
 
@@ -41,6 +42,8 @@ export default async function RootLayout({
     <html lang="en" className={theme.fontClassName || undefined}>
       <body>
         {tokens && <style id="theme-tokens" dangerouslySetInnerHTML={{ __html: tokens }} />}
+        {/* Telt de pagina's in dit tabblad, zodat BackLink weet of er iets is om naar terug te gaan. */}
+        <NavDepthTracker />
         {children}
 
         {/* Google Analytics 4 — long-term history & trends: analytics.google.com */}

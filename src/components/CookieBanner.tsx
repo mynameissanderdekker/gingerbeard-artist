@@ -37,7 +37,7 @@ export function CookieBanner() {
           alignItems: 'center',
           gap: '20px',
           zIndex: 9999,
-          fontSize: '13px',
+          fontSize: 'var(--type-small)',
           boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
           width: 'max-content',
           maxWidth: 'calc(100vw - 32px)',
@@ -57,7 +57,7 @@ export function CookieBanner() {
               border: 'none',
               padding: '6px 16px',
               cursor: 'pointer',
-              fontSize: '13px',
+              fontSize: 'var(--type-small)',
               fontFamily: 'inherit',
               letterSpacing: '0.05em',
             }}
@@ -72,7 +72,7 @@ export function CookieBanner() {
               border: '1px solid var(--tone-700)',
               padding: '6px 16px',
               cursor: 'pointer',
-              fontSize: '13px',
+              fontSize: 'var(--type-small)',
               fontFamily: 'inherit',
               letterSpacing: '0.05em',
             }}

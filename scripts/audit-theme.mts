@@ -41,6 +41,8 @@ const GRENS = {
   hexKleuren: 7,     // de merkkleuren van Google en Outlook in AddToCalendar — hún merk, geen thema
   geistDirect: 0,    // n.v.t. hier (systeemstack), maar de controle blijft: een next/font-var in een component omzeilt het thema
   galerieNaam: 68,   // "Sander Dekker" / "mynameissanderdekker" hard in publieke code — gemeten 5 sept 2026
+  lettermaatCss: 15, // losse px-lettermaten in globals.css — de Mindmap, het spinwheel, sluitkruisjes en de nav; de rest hangt aan --type-*
+  lettermaatInline: 0, // losse px/rem/em-lettermaten in publieke componenten: alles via var(--type-…)
   //                    Dit is de identiteit, niet het uiterlijk: de artist-core heeft nog geen
   //                    siteIdentity zoals de gallery-core. Elke stap omlaag is er één; omhoog nooit.
 }
@@ -156,6 +158,19 @@ const themaTokens = new Set([...css.matchAll(/^\s*(--[a-z0-9-]+)\s*:/gm)].map((m
 const onbekend = [...gebruikt].filter((t) => !themaTokens.has(t))
 check('elke gebruikte token is gedefinieerd', onbekend.length === 0,
   onbekend.length ? `onbekend: ${onbekend.join(', ')}` : `${gebruikt.size} tokens in gebruik`)
+
+// Lettermaten: één schaal (--type-*), geen losse px/rem/em. Body stond op 15px
+// en er lagen ~80 eigen maten overheen; dat gaf het rommelige beeld.
+const maatCss = [...css.matchAll(/font-size:\s*\d+px/g)].length
+check(`losse px-lettermaten in globals.css ≤ ${GRENS.lettermaatCss}`, maatCss <= GRENS.lettermaatCss, `${maatCss}`)
+let maatInline = 0
+const maatWaar: string[] = []
+for (const f of publiek) {
+  const n = [...readFileSync(f, 'utf8').matchAll(/fontSize:\s*'[\d.]+(px|rem|em)'/g)].length
+  if (n) { maatInline += n; maatWaar.push(`${relative(ROOT, f)} (${n})`) }
+}
+check(`losse lettermaten in publieke componenten ≤ ${GRENS.lettermaatInline}`, maatInline <= GRENS.lettermaatInline,
+  maatWaar.length ? maatWaar.join(', ') : 'alles via var(--type-…)')
 
 console.log(fails
   ? `\n${fails} punt(en) kloppen niet. Zet de grens nooit omhoog om dit groen te maken — dan is de vraag waarom er weer uiterlijk in de core kruipt.`

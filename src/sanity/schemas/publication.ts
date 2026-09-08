@@ -21,7 +21,7 @@ export const publication = defineType({
     { name: 'webshop', title: 'Webshop' },
   ],
   preview: {
-    select: { title: 'title', number: 'number', media: 'coverImage' },
+    select: { title: 'title', number: 'number', media: 'images.0' },
     prepare({ title, number, media }) {
       return { title: [number, title].filter(Boolean).join(' — '), media }
     },
@@ -115,20 +115,6 @@ export const publication = defineType({
       group: 'basis',
       of: [{ type: 'image', options: { hotspot: true } }],
       description: 'First image = main photo',
-    }),
-    defineField({
-      name: 'coverImage',
-      title: 'Cover image',
-      type: 'image',
-      group: 'basis',
-      options: { hotspot: true },
-    }),
-    defineField({
-      name: 'coverImageUrl',
-      title: 'Cover image URL (fallback)',
-      description: 'External URL — used when no Sanity image is uploaded yet',
-      type: 'url',
-      group: 'basis',
     }),
     defineField({
       name: 'projectSlug',

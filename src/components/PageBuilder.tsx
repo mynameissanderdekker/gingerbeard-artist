@@ -60,8 +60,7 @@ interface ZineItem {
   description?: string
   featured: boolean
   projectSlug?: string
-  coverImage?: SanityImage
-  coverImageUrl?: string
+  mainImage?: SanityImage
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -69,8 +68,8 @@ interface ZineItem {
 const WIDTH_MAP = { full: '100%', '8col': '66.666%', '6col': '50%' }
 
 function zineImg(zine: ZineItem) {
-  if (zine.coverImage?.asset) return urlFor(zine.coverImage).width(600).height(800).fit('crop').url()
-  return zine.coverImageUrl ?? null
+  if (zine.mainImage?.asset) return urlFor(zine.mainImage).width(800).fit('max').url()
+  return null
 }
 
 // ── Block renderers ───────────────────────────────────────────────────────────
@@ -112,10 +111,10 @@ function HeroVideo({ block }: { block: HeroVideoBlock }) {
 
 export const ptComponents = {
   block: {
-    h1: ({ children }: { children?: React.ReactNode }) => <h1 style={{ fontSize: '2em', fontWeight: 700, margin: '0.5em 0' }}>{children}</h1>,
-    h2: ({ children }: { children?: React.ReactNode }) => <h2 style={{ fontSize: '1.5em', fontWeight: 700, margin: '0.5em 0' }}>{children}</h2>,
-    h3: ({ children }: { children?: React.ReactNode }) => <h3 style={{ fontSize: '1.2em', fontWeight: 700, margin: '0.5em 0' }}>{children}</h3>,
-    h4: ({ children }: { children?: React.ReactNode }) => <h4 style={{ fontSize: '1.1rem', fontWeight: 700, letterSpacing: 0, marginTop: '2rem', marginBottom: '0.4rem' }}>{children}</h4>,
+    h1: ({ children }: { children?: React.ReactNode }) => <h1 style={{ fontSize: 'var(--type-h2)', fontWeight: 700, margin: '0.5em 0' }}>{children}</h1>,
+    h2: ({ children }: { children?: React.ReactNode }) => <h2 style={{ fontSize: 'var(--type-h3)', fontWeight: 700, margin: '0.5em 0' }}>{children}</h2>,
+    h3: ({ children }: { children?: React.ReactNode }) => <h3 style={{ fontSize: 'var(--type-h4)', fontWeight: 700, margin: '0.5em 0' }}>{children}</h3>,
+    h4: ({ children }: { children?: React.ReactNode }) => <h4 style={{ fontSize: 'var(--type-h4)', fontWeight: 700, letterSpacing: 0, marginTop: '2rem', marginBottom: '0.4rem' }}>{children}</h4>,
     blockquote: ({ children }: { children?: React.ReactNode }) => <blockquote style={{ borderLeft: '3px solid var(--tone-300)', paddingLeft: '1em', color: 'var(--tone-600)', margin: '1em 0', fontStyle: 'italic' }}>{children}</blockquote>,
   },
   marks: {
@@ -267,7 +266,7 @@ function PersonProfile({ block }: { block: PersonBlock }) {
       )}
       {(block.name || block.location) && (
         <div className="project-intro project-intro--8col" style={{ margin: '0 auto' }}>
-          <h4 style={{ fontSize: '1.1rem', fontWeight: 700, letterSpacing: 0, margin: '0 0 0.6rem' }}>
+          <h4 style={{ fontSize: 'var(--type-h4)', fontWeight: 700, letterSpacing: 0, margin: '0 0 0.6rem' }}>
             {block.name && <strong>{block.name}</strong>}
             {block.name && block.location && <span style={{ fontWeight: 400 }}> — </span>}
             {block.location && <em style={{ fontWeight: 400 }}>{block.location}</em>}
@@ -301,7 +300,7 @@ function ZineGrid({ block, zines }: { block: ZineGridBlock; zines: ZineItem[] })
             const imgUrl = zineImg(zine)
             const inner = (
               <>
-                {imgUrl && <Image src={imgUrl} alt={zine.title} width={600} height={800} className="zine-card-img" style={{ height: 'auto' }} sizes="33vw" />}
+                {imgUrl && <img src={imgUrl} alt={zine.title} className="zine-card-img" />}
                 <div className="zine-card-body">
                   <h3 className="zine-card-title">{zine.number ? `${zine.number} ` : ''}{zine.title}</h3>
                   {zine.meta && <p className="zine-card-meta">{zine.meta}</p>}
@@ -324,7 +323,7 @@ function ZineGrid({ block, zines }: { block: ZineGridBlock; zines: ZineItem[] })
             const imgUrl = zineImg(zine)
             return (
               <div key={i} className="zine-card">
-                {imgUrl && <Image src={imgUrl} alt={zine.title} width={600} height={800} className="zine-card-img" style={{ height: 'auto' }} sizes="33vw" />}
+                {imgUrl && <img src={imgUrl} alt={zine.title} className="zine-card-img" />}
                 <div className="zine-card-body">
                   <h3 className="zine-card-title">{zine.number ? `${zine.number} ` : ''}{zine.title}</h3>
                   {zine.meta && <p className="zine-card-meta">{zine.meta}</p>}

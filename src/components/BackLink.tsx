@@ -1,57 +1,86 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 /**
- * Terug naar waar je vandaan kwam.
+ * Terug naar waar je vandaan kwam — en anders naar een zinnige plek.
  *
- * De expositie- en beurspagina hadden een vaste link naar `/works`. Kom je uit
- * de CV, uit een project of uit de aankondiging op de homepage, dan zette die
- * je ergens anders neer dan waar je vandaan kwam — en op de webshop, waar je
- * nooit was geweest.
+ * Gedeeld tussen beide cores (sync-shared.mjs).
  *
- * Alleen `router.back()` is óók niet goed: wie via een gedeelde link
- * binnenkomt heeft geen geschiedenis op deze site, en dan stuurt de knop hem
- * terug naar Google of naar een lege tab. Daarom: teruggaan als er iets is om
- * naar terug te gaan, anders de opgegeven pagina.
+ * Wat er misging, in twee rondes:
+ *
+ * 1. Elke detailpagina had een vaste link: `← Exhibitions`, `← Works`. Kom je
+ *    van de homepage, een kunstenaarspagina of een aankondiging, dan zet die
+ *    je ergens neer waar je niet was. Op een site waar je vanuit tien richtingen
+ *    op een werk kunt komen, klopt een vaste terugknop bijna nooit.
+ *
+ * 2. De eerste vervanging keek naar `document.referrer`. Maar bij navigatie
+ *    bínnen een Next-site (Link, router) verandert die niet: hij blijft staan
+ *    op de verwijzer van de éérste paginalading. Van de homepage naar een
+ *    beurs geklikt? De referrer zei nog "niets", en de knop viel terug op de
+ *    vaste link. Precies het gedrag dat we wilden wegnemen.
+ *
+ * Nu houdt `NavDepthTracker` (in de root layout) zelf bij hoeveel pagina's
+ * van deze site je in dit tabblad hebt gezien. Twee of meer → er is een vorige
+ * pagina op deze site → `router.back()`. Eén → je kwam van buiten (gedeelde
+ * link, Google, getypt) → de opgegeven terugvalpagina, met een label dat zegt
+ * waar je heen gaat. Dat label is dan geen leugen: het is niet waar je vandaan
+ * kwam, en het zegt dat ook niet.
  */
+
+const SLEUTEL = 'gb-nav-depth'
+
+/** In de root layout zetten. Rendert niets; telt de pagina's in dit tabblad. */
+export function NavDepthTracker() {
+  const pathname = usePathname()
+  useEffect(() => {
+    try {
+      const n = Number(window.sessionStorage.getItem(SLEUTEL) ?? '0')
+      window.sessionStorage.setItem(SLEUTEL, String(n + 1))
+    } catch {
+      /* privémodus zonder opslag: dan valt BackLink altijd terug op de vaste link */
+    }
+  }, [pathname])
+  return null
+}
+
+function diepte(): number {
+  try { return Number(window.sessionStorage.getItem(SLEUTEL) ?? '0') } catch { return 0 }
+}
+
 export default function BackLink({
-  fallback = '/works',
-  fallbackLabel = 'Works',
+  fallback,
+  fallbackLabel,
+  className = 'text-xs tracking-widest uppercase text-gray-400 hover:text-black mb-8 inline-block',
 }: {
-  fallback?: string
-  fallbackLabel?: string
+  /** Waarheen als er geen vorige pagina op deze site is. */
+  fallback: string
+  /** Wat er dan op de knop staat, bijv. "Exhibitions". */
+  fallbackLabel: string
+  className?: string
 }) {
-  // Server en client moeten dezelfde HTML opleveren, dus pas ná het monteren
-  // bepalen we of er geschiedenis is.
+  // Server en client moeten dezelfde HTML opleveren; pas ná het monteren
+  // weten we of er geschiedenis is. Tot die tijd: de terugval.
   const [kanTerug, setKanTerug] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    try {
-      const zelfdeSite = document.referrer
-        ? new URL(document.referrer).origin === window.location.origin
-        : false
-      setKanTerug(window.history.length > 1 && zelfdeSite)
-    } catch {
-      setKanTerug(false)
-    }
+    // De tracker heeft deze pagina al meegeteld, dus ≥ 2 betekent: hiervoor
+    // was er al een pagina van deze site in dit tabblad.
+    setKanTerug(diepte() >= 2 && window.history.length > 1)
   }, [])
-
-  const className = 'text-xs tracking-widest uppercase text-gray-400 hover:text-black mb-8 inline-block'
 
   if (!kanTerug) {
     return <Link href={fallback} className={className}>← {fallbackLabel}</Link>
   }
-
   return (
     <button
       type="button"
       onClick={() => router.back()}
       className={className}
-      style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', font: 'inherit' }}
+      style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', font: 'inherit', textAlign: 'left' }}
     >
       ← Back
     </button>
