@@ -384,6 +384,12 @@ strong { font-weight: var(--weight-bold); }
 .pb-cards--2col { grid-template-columns: repeat(2, 1fr); }
 .pb-cards--3col { grid-template-columns: repeat(3, 1fr); }
 
+.pb-cards p {
+  margin: 0 0 14px 0;
+  line-height: 1.7;
+}
+.pb-cards p:last-child { margin-bottom: 0; }
+
 .project-intro p {
   line-height: 1.75;
   margin: 0 0 18px 0;

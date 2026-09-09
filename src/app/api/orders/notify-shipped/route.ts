@@ -3,6 +3,7 @@ import { getResendClient } from '@/lib/resend'
 import { getSanityWriteClient } from '@/lib/sanityClient'
 import type { SanityClient } from '@sanity/client'
 import { buildShippedEmail } from '@/lib/orderEmails'
+import { isAdminRequest } from '@/lib/adminAuth'
 import { generateInvoicePdf } from '@/lib/generateInvoicePdf'
 
 const FROM_FALLBACK = 'Sander Dekker <hello@mynameissanderdekker.com>'
@@ -46,6 +47,10 @@ async function nextInvoiceNumber(sanity: SanityClient): Promise<string> {
 }
 
 export async function POST(request: NextRequest) {
+  // Stond open: iedereen met een order-id kon de verzendmail laten sturen (8 sept 2026).
+  if (!(await isAdminRequest(request))) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   const resend = getResendClient()
   const sanity = getSanityWriteClient()
   const { orderId } = await request.json()

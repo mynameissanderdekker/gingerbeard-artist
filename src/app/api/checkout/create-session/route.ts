@@ -38,9 +38,10 @@ export async function POST(req: NextRequest) {
       stripeCouponId = stripeCoupon.id
     }
 
-    const session = await stripe.checkout.sessions.create({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const session = await (stripe.checkout.sessions.create as any)({
       mode: 'payment',
-      payment_method_types: ['card', 'ideal', 'bancontact'],
+      automatic_payment_methods: { enabled: true },
       line_items: items.map((item) => ({
         price_data: {
           currency: 'eur',

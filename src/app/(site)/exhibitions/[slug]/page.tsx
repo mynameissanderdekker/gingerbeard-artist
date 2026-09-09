@@ -53,8 +53,8 @@ async function getExhibition(slug: string) {
       images[]{ asset->{ _id, url }, hotspot, crop },
       press[]->{ _id, title, publication, date, url, image{ asset->{ _id, url }, hotspot, crop } },
       "artworks": [
-        ...coalesce(artworkSeries[]->artworks[]->{ _id, title, slug, "mainImage": images[0]{ asset, hotspot, crop }, priceExclVAT, vatRate, status }, []),
-        ...coalesce(artworks[]->{ _id, title, slug, "mainImage": images[0]{ asset, hotspot, crop }, priceExclVAT, vatRate, status }, [])
+        ...coalesce(artworkSeries[]->artworks[]->{ _id, title, year, medium, dimensions, slug, "mainImage": images[0]{ asset, hotspot, crop }, status }, []),
+        ...coalesce(artworks[]->{ _id, title, year, medium, dimensions, slug, "mainImage": images[0]{ asset, hotspot, crop }, status }, [])
       ]
     }`,
     { slug }
@@ -144,30 +144,30 @@ export default async function ExhibitionPage({ params }: Props) {
             {artworks.map((a: typeof artworks[0]) => {
               const imgSrc = a.mainImage?.asset ? urlFor(a.mainImage).width(600).fit('max').url() : null
               const soldOut = a.status === 'sold'
-              const enquire = !a.priceIncVat
-              const price = (!enquire && !soldOut && a.priceExclVAT) ? formatPrice(a.priceExclVAT, a.vatRate) : null
-              const inner = (
+              const meta = [
+                a.year,
+                a.dimensions?.widthCm && a.dimensions?.heightCm
+                  ? `${a.dimensions.widthCm} × ${a.dimensions.heightCm} cm`
+                  : null,
+              ].filter(Boolean).join(' · ')
+              const cardContent = (
                 <>
                   <div className="works-grid-img-wrap">
                     {imgSrc ? <img src={imgSrc} alt={a.title} className="works-grid-img" /> : <div className="works-grid-img" style={{ background: 'var(--color-surface-2)' }} />}
                     {soldOut && <span className="works-badge works-badge-sold">SOLD OUT</span>}
                   </div>
                   <h3 className="works-grid-title">{a.title}</h3>
-                  {price && <p className="works-price">{price}</p>}
+                  {a.medium && <p className="works-grid-medium">{a.medium}</p>}
+                  {meta && <p className="works-grid-meta">{meta}</p>}
                 </>
               )
-              if (soldOut || !a.slug?.current) return <div key={a._id} className="works-grid-item is-sold-out">{inner}</div>
-              if (enquire) return (
+              if (soldOut || !a.slug?.current) return <div key={a._id} className="works-grid-item is-sold-out">{cardContent}</div>
+              return (
                 <div key={a._id} className="works-grid-item">
-                  <Link href={`/works/${a.slug.current}`} className="works-grid-img-wrap">
-                    {imgSrc ? <img src={imgSrc} alt={a.title} className="works-grid-img" /> : <div className="works-grid-img" style={{ background: 'var(--color-surface-2)' }} />}
-                  </Link>
-                  <h3 className="works-grid-title">{a.title}</h3>
-                  {price && <p className="works-price">{price}</p>}
+                  {cardContent}
                   <Link href={`/works/${a.slug.current}`} className="btn-artwork-info">ARTWORK INFORMATION</Link>
                 </div>
               )
-              return <Link key={a._id} href={`/works/${a.slug.current}`} className="works-grid-item-link">{inner}</Link>
             })}
           </div>
         </div>

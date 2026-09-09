@@ -260,6 +260,17 @@ export default async function ProjectPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(creativeWorkSchema) }}
       />
+      {project.coverImageUrl && pageBlocks[0]?._type !== 'heroImage' && pageBlocks[0]?._type !== 'heroVideo' && (
+        /* Show cover image as hero unless pageBuilder already starts with a hero block */
+        <div className="project-hero">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`${project.coverImageUrl}?w=1600&auto=format&q=85`}
+            alt={project.title}
+            style={{ width: '100%', height: 'auto', display: 'block', maxHeight: '70vh', objectFit: 'cover' }}
+          />
+        </div>
+      )}
       <PageBuilder blocks={pageBlocks} zines={zines} />
       <ArtworksGrid artworks={artworks} label={['the-zine-project', 'the-social-media-project'].includes(slug) ? 'Artworks (selection)' : 'Artworks'} />
       <ExhibitionsList exhibitions={exhibitions} />

@@ -2,7 +2,7 @@
 import { useFormValue } from 'sanity'
 import type { FieldProps } from 'sanity'
 
-const BASE_URL = 'https://mynameissanderdekker.com/werk'
+const BASE_URL = 'https://www.mynameissanderdekker.com/works'
 
 export function ArtworkQRCode(props: FieldProps) {
   const slug = (useFormValue(['slug']) as any)?.current as string | undefined
