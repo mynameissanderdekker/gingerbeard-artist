@@ -223,7 +223,7 @@ export default function ArtworkDetail({ artwork }: { artwork: ArtworkData }) {
                         : 'border-gray-300 hover:border-black'
                     }`}
                   >
-                    <span className="block">{opt.label} <span className="opacity-50 font-normal text-xs">excl. frame</span></span>
+                    <span className="block">{opt.label}{artwork.dimensionsExclFrame && <span className="opacity-50 font-normal text-xs ml-1">excl. frame</span>}</span>
                     {sellInWebshop && (
                       <span className="block text-xs opacity-70 mt-0.5">
                         {formatPrice(opt.priceExclVAT, artwork.vatRate)}
