@@ -15,7 +15,7 @@ async function getProjects(): Promise<ProjectItem[]> {
       _id, title, slug, dateRange, description
     }`,
     {},
-    { next: { revalidate: false } }
+    { next: { revalidate: 60 } }
   )
 }
 

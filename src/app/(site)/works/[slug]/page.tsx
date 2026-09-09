@@ -34,7 +34,7 @@ async function getArtwork(slug: string): Promise<ArtworkData | null> {
       metaDescription
     }`,
     { slug },
-    { next: { revalidate: false } },
+    { next: { revalidate: 60 } },
   )
 }
 
@@ -42,7 +42,7 @@ async function getAllSlugs(): Promise<string[]> {
   const rows = await client.fetch<Array<{ slug: { current: string } }>>(
     `*[_type == "artwork" && defined(slug.current)]{ slug }`,
     {},
-    { next: { revalidate: false } },
+    { next: { revalidate: 60 } },
   )
   return rows.map(r => r.slug.current)
 }

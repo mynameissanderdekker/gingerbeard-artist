@@ -29,12 +29,12 @@ async function getAllWorks(): Promise<{ works: ArtworkItem[]; categories: string
         medium, dimensions
       }`,
       {},
-      { next: { revalidate: false } },
+      { next: { revalidate: 60 } },
     ),
     client.fetch<string[]>(
       `array::unique(*[_type == "artwork" && defined(category) && category != ""].category) | order(@)`,
       {},
-      { next: { revalidate: false } },
+      { next: { revalidate: 60 } },
     ),
   ])
 
