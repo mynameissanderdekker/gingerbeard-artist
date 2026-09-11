@@ -125,7 +125,7 @@ async function getProject(slug: string) {
 
 async function getZines() {
   return client.fetch(
-    `*[_type == "publication"] | order(order asc) {
+    `*[_type == "publication" && publicationCategory == "Zine"] | order(order asc) {
       number, title, meta, description, "featured": shopFeatured, projectSlug,
       "mainImage": images[0]{ asset, hotspot, crop }
     }`

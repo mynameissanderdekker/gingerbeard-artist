@@ -1,5 +1,18 @@
 @AGENTS.md
 
+## VASTE REGELS — gelden altijd, boven alles hieronder
+
+1. **Buiten de webshop staat er NOOIT een prijs op de publieke site.** Niet op
+   een pagina, niet in de JSON van een publieke API, niet in de paginabron.
+   Alleen: webshop (`availableInShop === true`), deelbare prijslijst met
+   wachtwoord, offerte via eigen link, app achter pincode, Studio. Elke
+   publieke route die werken teruggeeft gaat door `lib/publicPrices.ts`;
+   `audit-public-prices` blokkeert de push bij één treffer. Gebeurd op
+   11 september 2026 terwijl de klant meekeek — nooit meer.
+2. Klantgegevens, orders en facturen zijn nooit zonder inlog bereikbaar.
+3. Test na een wijziging aan een publieke pagina of API wat de bezoeker
+   **ziet**, niet alleen of de pagina laadt.
+
 # gingerbeard-artist — de artist-core
 
 Dit is de **artist-core** van GingerBeard.Works; mynameissanderdekker.com is de
