@@ -2,8 +2,7 @@
 
 import { useFormValue } from 'sanity'
 import { useState } from 'react'
-
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://mynameissanderdekker.com'
+import { useRoomLink } from './useRoomLink'
 
 export function ShareExhibitionRoomLink() {
   return <ShareRoomLink type="exhibition" />
@@ -25,10 +24,12 @@ function ShareRoomLink({ type }: { type: 'exhibition' | 'artfair' }) {
     )
   }
 
-  const url = `${SITE}/room/${type}/${slug}`
+  // Link mét sleutel (lib/roomKey); zonder sleutel geeft de prijslijst 404.
+  const { url, fout } = useRoomLink(type, slug)
+  if (!url) return <div style={{ padding: '10px 14px', background: fout ? '#fef2f2' : '#f9fafb', borderRadius: 8, fontSize: 13, color: fout ? '#b91c1c' : '#9ca3af' }}>{fout ?? 'Deellink ophalen…'}</div>
 
   async function copy() {
-    try { await navigator.clipboard.writeText(url) } catch { /* */ }
+    try { await navigator.clipboard.writeText(url!) } catch { /* */ }
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }

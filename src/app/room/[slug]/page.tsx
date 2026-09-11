@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import EnquirePanel from '@/components/EnquirePanel'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -75,6 +75,7 @@ function formatPrice(priceExclVAT: number, vatRate: number) {
 export default function RoomPage() {
   const params = useParams()
   const slug = params?.slug as string
+  const sleutel = useSearchParams().get('k') ?? ''
 
   const [room, setRoom] = useState<Room | null>(null)
   const [loading, setLoading] = useState(true)
@@ -85,7 +86,7 @@ export default function RoomPage() {
   const [activeArtwork, setActiveArtwork] = useState<ArtworkData | null>(null)
 
   async function fetchRoom(pw?: string) {
-    const url = `/api/room/${slug}${pw ? `?password=${encodeURIComponent(pw)}` : ''}`
+    const url = `/api/room/${slug}?k=${encodeURIComponent(sleutel)}${pw ? `&password=${encodeURIComponent(pw)}` : ''}`
     const res = await fetch(url)
 
     if (res.status === 401) {
@@ -187,10 +188,10 @@ export default function RoomPage() {
 
         {/* PDF buttons */}
         <div className="room-actions no-print flex items-center gap-2">
-          <a href={`/room/${slug}/pdf?style=compact`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 border border-gray-300 px-4 py-2 text-[12px] tracking-[0.15em] uppercase text-gray-500 hover:border-black hover:text-black transition-colors duration-150">
+          <a href={`/room/${slug}/pdf?style=compact&k=${encodeURIComponent(sleutel)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 border border-gray-300 px-4 py-2 text-[12px] tracking-[0.15em] uppercase text-gray-500 hover:border-black hover:text-black transition-colors duration-150">
             Compact PDF
           </a>
-          <a href={`/room/${slug}/pdf?style=full`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 border border-gray-300 px-4 py-2 text-[12px] tracking-[0.15em] uppercase text-gray-500 hover:border-black hover:text-black transition-colors duration-150">
+          <a href={`/room/${slug}/pdf?style=full&k=${encodeURIComponent(sleutel)}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 border border-gray-300 px-4 py-2 text-[12px] tracking-[0.15em] uppercase text-gray-500 hover:border-black hover:text-black transition-colors duration-150">
             Full PDF
           </a>
         </div>

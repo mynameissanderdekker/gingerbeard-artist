@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { roomKeyGeldig } from '@/lib/roomKey'
 import { createClient } from '@sanity/client'
 import { getSiteIdentity } from '@/lib/siteIdentity'
 
@@ -44,7 +45,7 @@ interface RoomData {
 
 interface Props {
   params: Promise<{ slug: string }>
-  searchParams: Promise<{ style?: string }>
+  searchParams: Promise<{ style?: string; k?: string }>
 }
 
 function formatDims(d?: ArtworkData['dimensions']) {
@@ -63,7 +64,8 @@ export default async function ViewingRoomPdf({ params, searchParams }: Props) {
   // Naam, adres en e-mail kwamen hier hardcoded uit de code.
   const site = await getSiteIdentity(client)
   const { slug } = await params
-  const { style = 'compact' } = await searchParams
+  const { style = 'compact', k } = await searchParams
+  if (!roomKeyGeldig('privatesale', slug, k)) notFound()
   const isFull = style === 'full'
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

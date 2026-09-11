@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { roomKeyGeldig } from '@/lib/roomKey'
 import { getSanityWriteClient } from '@/lib/sanityClient'
 import { getSiteIdentity } from '@/lib/siteIdentity'
 
@@ -19,10 +20,15 @@ const ARTWORK_FIELDS = `
 `
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await params
+  // Prijslijst alleen met de sleutel uit de deellink (lib/roomKey) — zonder
+  // sleutel is dit een publieke prijslijst op de slug van de expositiepagina.
+  if (!roomKeyGeldig('exhibition', slug, req.nextUrl.searchParams.get('k'))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
 
   const client = getSanityWriteClient('2026-01-01')
   const exhibition = await client.fetch(

@@ -537,3 +537,17 @@ foto's — staat alleen bij Sanity. `scripts/backup.sh mynameissanderdekker` exp
 dataset mét foto's naar `~/websites/clients/mynameissanderdekker/backup/` en bewaart de
 laatste zes. Draai het na elke sessie waarin er veel inhoud bij is gekomen, en
 in elk geval maandelijks. Werkt alleen op Sanders machine (Sanity-login).
+
+---
+
+## Prijslijst-deellinks met sleutel (11 september 2026)
+
+Overgenomen uit de gallery-core: `/room/exhibition/<slug>`, `/room/artfair/
+<slug>` en `/room/<slug>` (private sale) eisen `?k=<sleutel>` uit
+`src/lib/roomKey.ts` (gedeeld); zonder sleutel 404. De Studio-componenten
+halen de link op via `/api/admin/room-link` (`useRoomLink`, gedeeld). Hier
+waren de exposities in die route leeg (de koppeling loopt vanaf het werk),
+dus er lekte niets — maar de deur stond open. Oude links werken niet meer.
+
+Ook: `StudioLayout` zette de admin-cookie één keer per sessie; de cookie
+verloopt na 7 dagen. Nu bij elke Studio-lading opnieuw.

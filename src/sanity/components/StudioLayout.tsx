@@ -28,11 +28,12 @@ const css = `
 function AdminSession() {
   const client = useClient({ apiVersion: '2024-01-01' })
   useEffect(() => {
-    if (window.sessionStorage.getItem('gb-admin-session') === '1') return
+    // Geen 'al gedaan'-vlag: de cookie verloopt na 7 dagen, een Studio-tab
+    // leeft langer (gallery-core, 11 sept 2026). Elke keer opnieuw zetten.
     const token = (client as unknown as { config?: () => { token?: string } }).config?.()?.token
     if (!token) return
     fetch('/api/admin/login', { method: 'POST', headers: { 'x-sanity-token': token } })
-      .then((r) => { if (r.ok) window.sessionStorage.setItem('gb-admin-session', '1') })
+      .then(() => {})
       .catch(() => {})
   }, [client])
   return null

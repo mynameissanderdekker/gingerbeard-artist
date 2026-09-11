@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { roomKeyGeldig } from '@/lib/roomKey'
 import { getSanityWriteClient } from '@/lib/sanityClient'
 import { getSiteIdentity } from '@/lib/siteIdentity'
 
@@ -41,6 +42,9 @@ export async function GET(
 ) {
   const { slug } = await params
   const passwordAttempt = req.nextUrl.searchParams.get('password')
+  if (!roomKeyGeldig('privatesale', slug, req.nextUrl.searchParams.get('k'))) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
 
   try {
     const sanity = getSanityWriteClient('2026-07-24')

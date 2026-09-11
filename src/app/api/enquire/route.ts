@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { roomPad } from '@/lib/roomKey'
 import { getResendClient } from '@/lib/resend'
 import { getSanityWriteClient } from '@/lib/sanityClient'
 import { verifyTurnstile, clientIp } from '@/lib/verifyTurnstile'
@@ -36,7 +37,8 @@ export async function POST(req: NextRequest) {
       '',
       artworkTitle ? `Werk: ${artworkTitle}` : null,
       artworkSlug ? `URL: https://mynameissanderdekker.com/projects/innate-curiosity/${artworkSlug}` : null,
-      priceListSlug ? `Price list: https://mynameissanderdekker.com/room/${priceListSlug}` : null,
+      // Interne mail naar de studio: deellink mét sleutel (lib/roomKey).
+      priceListSlug ? `Price list: https://mynameissanderdekker.com${roomPad('privatesale', priceListSlug) ?? `/room/${priceListSlug}`}` : null,
       newsletter ? `Nieuwsbrief: Ja` : null,
     ].filter((l): l is string => l !== null)
 

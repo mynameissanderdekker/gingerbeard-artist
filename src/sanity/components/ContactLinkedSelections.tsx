@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useFormValue } from 'sanity'
 import { useListClient } from './useListClient'
+import { useRoomLink } from './useRoomLink'
 
 interface Selection {
   _id: string
@@ -76,11 +77,10 @@ export function ContactLinkedSelections() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       {items.map((item) => {
         const active = item.isActive
-        // De private sale draait op `token`, niet op `slug` — de publieke
-        // route (`/private-sales/[token]`) zoekt daarop. Hier stond `/sale/`
-        // en daarna `/room/`; geen van beide bestaat.
-        const slug = item.token
-        const path = `/private-sales/${slug}`
+        // Prijslijst woont op /room/<slug>?k=… (lib/roomKey). Het schema
+        // heeft geen `token`-veld; de route /private-sales/[token] vindt
+        // daarom nooit iets — hier stond die link, en die was altijd dood.
+        const slug = item.slug?.current
         const date = new Date(item._createdAt).toLocaleDateString('nl-NL', {
           day: '2-digit', month: 'short', year: 'numeric',
         })
@@ -105,11 +105,7 @@ export function ContactLinkedSelections() {
                   {item.occasion}
                 </span>
               )}
-              {slug && (
-                <span style={{ color: 'var(--card-muted-fg-color, #888)', fontSize: 11, fontFamily: 'monospace' }}>
-                  {path}
-                </span>
-              )}
+              {slug && <RoomPath slug={slug} />}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2, flexShrink: 0 }}>
               <span
@@ -129,5 +125,14 @@ export function ContactLinkedSelections() {
         )
       })}
     </div>
+  )
+}
+
+function RoomPath({ slug }: { slug: string }) {
+  const { path, fout } = useRoomLink('privatesale', slug)
+  return (
+    <span style={{ color: fout ? '#b91c1c' : 'var(--card-muted-fg-color, #888)', fontSize: 11, fontFamily: 'monospace', wordBreak: 'break-all' }}>
+      {fout ?? path ?? '…'}
+    </span>
   )
 }
