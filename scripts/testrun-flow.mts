@@ -101,8 +101,10 @@ check('expositie vindt het werk', hangt === 1, `${hangt} werk(en)`)
 // ── 2. Prijslijst ────────────────────────────────────────────────────────────
 console.log('\n── 2. Prijslijst van de expositie ──')
 const roomRoute = await import('../src/app/api/room/exhibition/[slug]/route')
+// De deellink eist sinds 11 sept 2026 een sleutel (src/lib/roomKey); zonder 404.
+const { roomPad } = await import('../src/lib/roomKey')
 const roomRes = await roomRoute.GET(
-  { } as never,
+  { nextUrl: new URL(`http://x/api${roomPad('exhibition', 'test-expositie-x')}`) } as never,
   { params: Promise.resolve({ slug: 'test-expositie-x' }) } as never
 )
 const room = await roomRes.json()
