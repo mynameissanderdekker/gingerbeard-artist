@@ -739,7 +739,7 @@ strong { font-weight: var(--weight-bold); }
 }
 
 .cv-list li {
-  font-size: 14px;
+  font-size: var(--type-small);
   padding: 4px 0;
   color: var(--tone-800);
   border-bottom: 1px solid var(--color-surface);
@@ -1883,7 +1883,7 @@ strong { font-weight: var(--weight-bold); }
   color: var(--tone-paper);
   text-decoration: none;
   font-family: var(--font-heading);
-  font-size: 18px;
+  font-size: var(--type-nav);
   font-weight: var(--weight-normal);
   letter-spacing: var(--tracking-none);
   transition: background 0.2s ease;

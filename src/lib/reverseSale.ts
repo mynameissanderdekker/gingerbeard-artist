@@ -139,10 +139,16 @@ export async function reverseSale(
   // staan, dan heeft de klant volgens zijn eigen Collectie-tab iets in bezit
   // dat hij nooit heeft gekregen.
   if (order.contact?._ref && order.orderNumber) {
-    const contact = await client.fetch<{ purchases?: { _key: string; orderNumber?: string }[] } | null>(
+    const contact = await client.fetch<{ purchases?: { _key: string; orderNumber?: string; artwork?: { _ref?: string } }[] } | null>(
       `*[_id == $id][0]{ purchases }`, { id: order.contact._ref }
     )
-    const treffers = (contact?.purchases ?? []).filter((p) => p.orderNumber === order.orderNumber)
+    const aankopen = contact?.purchases ?? []
+    // Op ordernummer — en voor regels van vóór 11 sept 2026, die geen
+    // ordernummer hebben, op het werk zelf. Dezelfde klant koopt hetzelfde
+    // werk niet twee keer zonder dat een van de twee een nummer heeft.
+    const werkIds = new Set((order.items ?? []).map((it) => it.item?._ref).filter(Boolean))
+    let treffers = aankopen.filter((p) => p.orderNumber === order.orderNumber)
+    if (!treffers.length) treffers = aankopen.filter((p) => !p.orderNumber && p.artwork?._ref && werkIds.has(p.artwork._ref))
     if (treffers.length) {
       tx.patch(client.patch(order.contact._ref).unset(
         treffers.map((p) => `purchases[_key=="${p._key}"]`)

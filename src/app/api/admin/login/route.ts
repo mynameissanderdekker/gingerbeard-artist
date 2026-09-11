@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ADMIN_COOKIE, adminCookieValue, isValidSanityToken } from '@/lib/adminAuth'
+import { geblokkeerd, mislukt, geslaagd } from '@/lib/bruteForce'
+import { timingSafeEqual } from 'node:crypto'
 
 /**
  * Wachtwoord → cookie, óf Studio-token → cookie. Zie lib/adminAuth.ts.
@@ -18,10 +20,18 @@ export async function POST(req: NextRequest) {
 
   const viaStudio = await isValidSanityToken(req.headers.get('x-sanity-token'))
   if (!viaStudio) {
+    // Rem op raden — zelfde regel als de pincode van de app (lib/bruteForce.ts).
+    const blok = geblokkeerd(req, 'admin-login')
+    if (blok) return blok
     const { password } = await req.json().catch(() => ({}))
-    if (!password || password !== process.env.ADMIN_PASSWORD) {
+    const juist = process.env.ADMIN_PASSWORD ?? ''
+    const ok = typeof password === 'string' && password.length === juist.length && juist.length > 0
+      && timingSafeEqual(Buffer.from(password), Buffer.from(juist))
+    if (!ok) {
+      await mislukt(req, 'admin-login')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+    geslaagd(req, 'admin-login')
   }
 
   const res = NextResponse.json({ ok: true })
